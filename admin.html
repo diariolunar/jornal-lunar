@@ -7,11 +7,11 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #F8F6F1;
+  color: #07101F;
 }
 
-/* LOGIN */
 .login-screen {
   display: flex;
   height: 100vh;
@@ -24,287 +24,767 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   padding: 60px;
+  text-align: center;
 }
 
 .logo-vertical {
-  width: 120px;
-  margin-bottom: 20px;
+  width: 220px;
+  margin-bottom: 30px;
+}
+
+.login-left h2 {
+  margin-top: 20px;
+}
+
+.login-left p {
+  color: #d1d5db;
+  max-width: 320px;
+  line-height: 1.6;
 }
 
 .login-right {
   flex: 1;
+  background: #F8F6F1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .login-box {
-  width: 350px;
+  width: 430px;
+}
+
+.login-box h1 {
+  font-size: 34px;
+}
+
+.login-box p {
+  color: #6b7280;
+  margin-bottom: 35px;
+}
+
+.login-box label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
 }
 
 .login-box input {
   width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  box-sizing: border-box;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 14px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
 }
 
 .login-box button {
   width: 100%;
-  margin-top: 20px;
-  padding: 14px;
+  padding: 16px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: linear-gradient(90deg, #0EA5E9, #6D28D9);
   color: white;
+  font-size: 17px;
+  cursor: pointer;
 }
 
-/* ADMIN */
 .layout {
   display: none;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .sidebar {
-  width: 260px;
+  width: 270px;
   background: #07101F;
   color: white;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
+  padding: 28px;
+  box-sizing: border-box;
+  background-image: radial-gradient(circle at bottom, rgba(109,40,217,0.45), transparent 35%);
 }
 
-.sidebar img {
-  width: 70px;
+.sidebar-logo {
+  width: 150px;
+  margin-bottom: 25px;
+}
+
+.voltar-site {
+  display: block;
+  color: white;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 11px;
+  border-radius: 14px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.perfil {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.perfil-foto {
+  width: 86px;
+  height: 86px;
   border-radius: 50%;
+  object-fit: cover;
+  background: #6D28D9;
+  margin-bottom: 12px;
 }
 
-.sidebar button {
-  margin-top: 10px;
-  padding: 12px;
+.perfil h3 {
+  margin: 5px 0;
+}
+
+.perfil p {
+  margin: 5px 0;
+  color: #cbd5e1;
+}
+
+.nomenclatura {
+  display: inline-block;
+  margin-top: 8px;
+  background: linear-gradient(90deg, #0EA5E9, #6D28D9);
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.menu-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: transparent;
+  color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
+  font-size: 15px;
+}
+
+.menu-btn:hover,
+.menu-btn.active {
+  background: linear-gradient(90deg, #0EA5E9, #6D28D9);
 }
 
 .main {
   flex: 1;
-  padding: 30px;
+  padding: 38px;
+  box-sizing: border-box;
 }
 
-/* DASHBOARD */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 20px;
-}
-
-.card-metric {
-  background: white;
-  padding: 20px;
-  border-radius: 18px;
-}
-
-.lista {
-  background: white;
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 18px;
-}
-
-.item {
+.topo-painel {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.topo-painel h1 {
+  margin-bottom: 8px;
+}
+
+.data-box {
+  background: white;
+  padding: 14px 18px;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.metrica {
+  background: white;
+  padding: 26px;
+  border-radius: 22px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+
+.metrica .icone {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ede9fe;
+  color: #6D28D9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.metrica h2 {
+  font-size: 34px;
+  margin: 0;
+}
+
+.metrica p {
+  color: #64748b;
+  margin: 8px 0 0;
+}
+
+.card {
+  background: white;
+  padding: 26px;
+  border-radius: 22px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.materia-linha {
+  display: grid;
+  grid-template-columns: 90px 1fr 120px 120px 140px;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.materia-linha img {
+  width: 90px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #e5e7eb;
+}
+
+.badge {
+  background: #ede9fe;
+  color: #6D28D9;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.status {
+  background: #dcfce7;
+  color: #166534;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.btn {
+  background: linear-gradient(90deg, #0EA5E9, #6D28D9);
+  color: white;
+  padding: 11px 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-dark {
+  background: #07101F;
+}
+
+.btn-red {
+  background: #ef4444;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 26px;
+}
+
+input, textarea, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  min-height: 320px;
+  resize: vertical;
+}
+
+@media (max-width: 1000px) {
+  .metricas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .materia-linha {
+    grid-template-columns: 80px 1fr;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login" class="login-screen">
-
   <div class="login-left">
     <img src="logo-vertical.png" class="logo-vertical">
-    <h1>DIÁRIO LUNAR</h1>
-    <p>Painel administrativo</p>
+    <h2>Painel administrativo</h2>
+    <p>Acesse sua conta para gerenciar o conteúdo do site.</p>
   </div>
 
   <div class="login-right">
     <div class="login-box">
-      <h2>Entrar</h2>
-      <input id="email" placeholder="Email">
-      <input id="senha" type="password" placeholder="Senha">
+      <h1>Entrar na Área ADM</h1>
+      <p>Digite suas credenciais para acessar.</p>
+
+      <label>Usuário ou e-mail</label>
+      <input id="email" placeholder="Digite seu e-mail">
+
+      <label>Senha</label>
+      <input id="senha" type="password" placeholder="Digite sua senha">
+
       <button onclick="logar()">Entrar</button>
     </div>
   </div>
-
 </div>
 
-<!-- PAINEL -->
 <div id="layout" class="layout">
+  <aside class="sidebar">
+    <a class="voltar-site" href="/">← Voltar ao site</a>
 
-  <div class="sidebar">
-    <div onclick="window.location.href='/'">← Voltar</div>
+    <img src="logo-diario-lunar2.png" class="sidebar-logo">
 
-    <img id="foto">
-    <h3 id="nome"></h3>
-    <p id="user"></p>
-    <small id="nomenclatura"></small>
+    <div class="perfil">
+      <div class="perfil-foto"></div>
+      <h3 id="nome"></h3>
+      <p id="user"></p>
+      <span id="nomenclatura" class="nomenclatura"></span>
+    </div>
 
-    <button onclick="dashboard()">Painel</button>
-    <button onclick="novaMateria()">Nova Matéria</button>
-    <button onclick="listar()">Matérias</button>
-    <button onclick="editarPerfil()">Perfil</button>
-    <button id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Novo ADM</button>
-    <button onclick="sair()">Sair</button>
-  </div>
+    <button class="menu-btn active" onclick="dashboard()">Painel</button>
+    <button class="menu-btn" onclick="novaMateria()">Nova Matéria</button>
+    <button class="menu-btn" onclick="listar()">Matérias Publicadas</button>
+    <button class="menu-btn" onclick="editarPerfil()">Editar Perfil</button>
+    <button class="menu-btn" id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Cadastrar ADM</button>
+    <button class="menu-btn" onclick="sair()">Sair</button>
+  </aside>
 
-  <div class="main" id="conteudo"></div>
-
+  <main class="main" id="conteudo"></main>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
-  authDomain:"diario-lunar-dee91.firebaseapp.com",
-  projectId:"diario-lunar-dee91"
+  authDomain: "diario-lunar-dee91.firebaseapp.com",
+  projectId: "diario-lunar-dee91",
+  storageBucket: "diario-lunar-dee91.firebasestorage.app",
+  messagingSenderId: "817640390152",
+  appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
 });
 
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let uid, perfil, editId;
+let uid = null;
+let perfil = null;
+let editId = null;
 
 window.logar = async () => {
-  await signInWithEmailAndPassword(auth,email.value,senha.value);
+  try {
+    await signInWithEmailAndPassword(auth, email.value, senha.value);
+  } catch (error) {
+    alert("Login inválido. Verifique o e-mail e a senha.");
+  }
 };
 
-onAuthStateChanged(auth, async (u)=>{
-  if(!u) return;
+onAuthStateChanged(auth, async (u) => {
+  if (!u) return;
 
   uid = u.uid;
 
-  const snap = await getDoc(doc(db,"admins",uid));
+  const snap = await getDoc(doc(db, "admins", uid));
 
-  if(!snap.exists()){
-    alert("Sem acesso");
-    signOut(auth);
+  if (!snap.exists()) {
+    alert("Acesso não autorizado.");
+    await signOut(auth);
     return;
   }
 
   perfil = snap.data();
 
-  login.style.display="none";
-  layout.style.display="flex";
+  document.getElementById("login").style.display = "none";
+  document.getElementById("layout").style.display = "flex";
 
-  nome.innerText=perfil.nome;
-  user.innerText="@"+perfil.user;
-  nomenclatura.innerText=perfil.nomenclatura;
+  document.getElementById("nome").innerText = perfil.nome || "Administrador";
+  document.getElementById("user").innerText = "@" + (perfil.user || "admin");
+  document.getElementById("nomenclatura").innerText = perfil.nomenclatura || "Administrador";
 
-  if(perfil.role==="superadmin") btnCadastrar.style.display="block";
+  if (perfil.role === "superadmin") {
+    document.getElementById("btnCadastrar").style.display = "block";
+  }
 
   dashboard();
 });
 
-window.sair = async ()=>{
+function marcarAtivo(texto) {
+  document.querySelectorAll(".menu-btn").forEach(btn => {
+    btn.classList.remove("active");
+    if (btn.innerText.includes(texto)) btn.classList.add("active");
+  });
+}
+
+function formatarData(data) {
+  if (!data) return "Sem data";
+
+  try {
+    if (data.toDate) {
+      return data.toDate().toLocaleDateString("pt-BR");
+    }
+    return new Date(data).toLocaleDateString("pt-BR");
+  } catch {
+    return "Sem data";
+  }
+}
+
+window.sair = async () => {
   await signOut(auth);
-  login.style.display="flex";
-  layout.style.display="none";
+
+  uid = null;
+  perfil = null;
+
+  document.getElementById("login").style.display = "flex";
+  document.getElementById("layout").style.display = "none";
 };
 
-window.dashboard = async ()=>{
-  const snap = await getDocs(collection(db,"posts"));
+window.dashboard = async () => {
+  marcarAtivo("Painel");
 
-  let lista="";
+  const postsSnap = await getDocs(query(collection(db, "posts"), orderBy("data", "desc")));
+  const comentariosSnap = await getDocs(collection(db, "comentarios"));
 
-  snap.forEach(d=>{
-    lista+=`<div class="item">
-      <span>${d.data().titulo}</span>
-      <span>Publicado</span>
-    </div>`;
+  let ultimas = "";
+  let totalCurtidas = 0;
+  let totalMes = 0;
+
+  const mesAtual = new Date().getMonth();
+  const anoAtual = new Date().getFullYear();
+
+  postsSnap.forEach((d, index) => {
+    const p = d.data();
+
+    totalCurtidas += p.curtidas || 0;
+
+    if (p.data && p.data.toDate) {
+      const dataPost = p.data.toDate();
+      if (dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual) {
+        totalMes++;
+      }
+    }
+
+    if (index < 5) {
+      ultimas += `
+        <div class="materia-linha" style="grid-template-columns:90px 1fr 120px;">
+          <img src="${p.imagem || ""}">
+          <div>
+            <strong>${p.titulo || ""}</strong>
+            <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
+          </div>
+          <span class="status">Publicado</span>
+        </div>
+      `;
+    }
   });
 
-  conteudo.innerHTML=`
-    <h1>Painel</h1>
-
-    <div class="cards">
-      <div class="card-metric">Matérias<br><h2>${snap.size}</h2></div>
-      <div class="card-metric">Views<br><h2>---</h2></div>
-      <div class="card-metric">Comentários<br><h2>---</h2></div>
-      <div class="card-metric">Este mês<br><h2>${snap.size}</h2></div>
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Painel de Controle</h1>
+        <p>Bem-vindo de volta, ${perfil.nome}. Aqui está um resumo do seu conteúdo.</p>
+      </div>
+      <div class="data-box">📅 ${new Date().toLocaleDateString("pt-BR")}</div>
     </div>
 
-    <div class="lista">
-      <h2>Últimas matérias</h2>
-      ${lista}
+    <div class="metricas">
+      <div class="metrica">
+        <div class="icone">📰</div>
+        <h2>${postsSnap.size}</h2>
+        <p>Matérias publicadas</p>
+      </div>
+
+      <div class="metrica">
+        <div class="icone">💜</div>
+        <h2>${totalCurtidas}</h2>
+        <p>Curtidas totais</p>
+      </div>
+
+      <div class="metrica">
+        <div class="icone">💬</div>
+        <h2>${comentariosSnap.size}</h2>
+        <p>Comentários</p>
+      </div>
+
+      <div class="metrica">
+        <div class="icone">📅</div>
+        <h2>${totalMes}</h2>
+        <p>Matérias este mês</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lista-header">
+        <h2>Últimas matérias publicadas</h2>
+        <button class="btn" onclick="listar()">Ver todas</button>
+      </div>
+      ${ultimas || "<p>Nenhuma matéria publicada ainda.</p>"}
     </div>
   `;
 };
 
-window.novaMateria = ()=>{
-  conteudo.innerHTML=`
-    <h1>Nova Matéria</h1>
-    <input id="titulo">
-    <textarea id="conteudoTxt"></textarea>
-    <button onclick="salvar()">Salvar</button>
+window.novaMateria = (p = null, id = null) => {
+  marcarAtivo("Nova Matéria");
+  editId = id;
+
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>${p ? "Editar Matéria" : "Nova Matéria"}</h1>
+        <p>Cadastre ou edite uma publicação do Diário Lunar.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-grid">
+        <div>
+          <label>Título da matéria</label>
+          <input id="titulo" placeholder="Digite o título da matéria" value="${p?.titulo || ""}">
+
+          <label>Categoria</label>
+          <select id="categoria">
+            <option value="">Selecione uma categoria</option>
+            <option value="Literatura" ${p?.categoria === "Literatura" ? "selected" : ""}>Literatura</option>
+            <option value="Comunidade" ${p?.categoria === "Comunidade" ? "selected" : ""}>Comunidade</option>
+            <option value="Autores" ${p?.categoria === "Autores" ? "selected" : ""}>Autores</option>
+            <option value="Eventos" ${p?.categoria === "Eventos" ? "selected" : ""}>Eventos</option>
+            <option value="Resenhas" ${p?.categoria === "Resenhas" ? "selected" : ""}>Resenhas</option>
+            <option value="Entrevistas" ${p?.categoria === "Entrevistas" ? "selected" : ""}>Entrevistas</option>
+            <option value="Destaques Lunar" ${p?.categoria === "Destaques Lunar" ? "selected" : ""}>Destaques Lunar</option>
+          </select>
+
+          <label>Resumo</label>
+          <textarea id="resumo" style="min-height:120px;" placeholder="Digite um resumo curto da matéria">${p?.resumo || ""}</textarea>
+
+          <label>Imagem de destaque</label>
+          <input id="imagem" placeholder="Cole o link da imagem" value="${p?.imagem || ""}">
+        </div>
+
+        <div>
+          <label>Conteúdo da matéria</label>
+          <textarea id="conteudoTxt" placeholder="Escreva o conteúdo da matéria aqui...">${p?.conteudo || ""}</textarea>
+        </div>
+      </div>
+
+      <button class="btn" onclick="salvar()">${p ? "Salvar alterações" : "Publicar"}</button>
+    </div>
   `;
 };
 
-window.salvar = async ()=>{
-  await addDoc(collection(db,"posts"),{
-    titulo:titulo.value,
-    conteudo:conteudoTxt.value,
-    autor:perfil.user,
-    data:new Date()
-  });
+window.salvar = async () => {
+  const dados = {
+    titulo: titulo.value.trim(),
+    imagem: imagem.value.trim(),
+    categoria: categoria.value,
+    resumo: resumo.value.trim(),
+    conteudo: conteudoTxt.value.trim(),
+    autor: perfil.user,
+    atualizadoEm: new Date()
+  };
+
+  if (!dados.titulo || !dados.imagem || !dados.categoria || !dados.conteudo) {
+    alert("Preencha título, imagem, categoria e conteúdo.");
+    return;
+  }
+
+  if (editId) {
+    await updateDoc(doc(db, "posts", editId), dados);
+    alert("Matéria atualizada!");
+  } else {
+    await addDoc(collection(db, "posts"), {
+      ...dados,
+      data: new Date(),
+      curtidas: 0
+    });
+    alert("Matéria publicada!");
+  }
+
+  editId = null;
   listar();
 };
 
-window.listar = async ()=>{
-  const snap = await getDocs(collection(db,"posts"));
+window.listar = async () => {
+  marcarAtivo("Matérias");
 
-  let html="";
+  const snap = await getDocs(query(collection(db, "posts"), orderBy("data", "desc")));
 
-  snap.forEach(d=>{
-    html+=`
-    <div>
-      ${d.data().titulo}
-      <button onclick="excluir('${d.id}')">X</button>
-    </div>`;
+  let linhas = "";
+
+  snap.forEach(d => {
+    const p = d.data();
+
+    linhas += `
+      <div class="materia-linha">
+        <img src="${p.imagem || ""}">
+        <div>
+          <strong>${p.titulo || ""}</strong>
+          <p style="margin:6px 0 0; color:#64748b;">${(p.resumo || p.conteudo || "").substring(0, 80)}...</p>
+        </div>
+        <span class="badge">${p.categoria || "Matéria"}</span>
+        <span>${formatarData(p.data)}</span>
+        <div>
+          <button class="btn" onclick="editar('${d.id}')">Editar</button>
+          <button class="btn btn-red" onclick="excluir('${d.id}')">Excluir</button>
+        </div>
+      </div>
+    `;
   });
 
-  conteudo.innerHTML=html;
-};
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Matérias Publicadas</h1>
+        <p>Gerencie, edite ou exclua as matérias do Diário Lunar.</p>
+      </div>
+      <button class="btn" onclick="novaMateria()">Nova Matéria</button>
+    </div>
 
-window.excluir = async(id)=>{
-  await deleteDoc(doc(db,"posts",id));
-  listar();
-};
-
-window.editarPerfil = ()=>{
-  conteudo.innerHTML=`
-    <input id="nomeNovo" value="${perfil.nome}">
-    <button onclick="salvarPerfil()">Salvar</button>
+    <div class="card">
+      ${linhas || "<p>Nenhuma matéria publicada ainda.</p>"}
+    </div>
   `;
 };
 
-window.salvarPerfil = async ()=>{
-  await updateDoc(doc(db,"admins",uid),{
-    nome:nomeNovo.value
+window.editar = async (id) => {
+  const snap = await getDoc(doc(db, "posts", id));
+
+  if (!snap.exists()) {
+    alert("Matéria não encontrada.");
+    return;
+  }
+
+  novaMateria(snap.data(), id);
+};
+
+window.excluir = async (id) => {
+  if (!confirm("Deseja excluir esta matéria?")) return;
+
+  await deleteDoc(doc(db, "posts", id));
+  alert("Matéria excluída.");
+  listar();
+};
+
+window.editarPerfil = () => {
+  marcarAtivo("Editar Perfil");
+
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Editar Perfil</h1>
+        <p>Atualize suas informações exibidas no painel.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Nome</label>
+      <input id="nomeNovo" value="${perfil.nome || ""}">
+
+      <label>User</label>
+      <input id="userNovo" value="${perfil.user || ""}">
+
+      <label>Nomenclatura no jornal</label>
+      <input id="nomenNovo" value="${perfil.nomenclatura || ""}">
+
+      <button class="btn" onclick="salvarPerfil()">Salvar alterações</button>
+    </div>
+  `;
+};
+
+window.salvarPerfil = async () => {
+  await updateDoc(doc(db, "admins", uid), {
+    nome: nomeNovo.value.trim(),
+    user: userNovo.value.trim(),
+    nomenclatura: nomenNovo.value.trim()
   });
+
+  alert("Perfil atualizado.");
   location.reload();
 };
 
-window.cadastrarADM = ()=>{
-  conteudo.innerHTML=`Novo ADM`;
+window.cadastrarADM = () => {
+  marcarAtivo("Cadastrar ADM");
+
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Cadastrar ADM</h1>
+        <p>Cadastre as informações de um novo administrador.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Nome</label>
+      <input id="nomeADM" placeholder="Nome do ADM">
+
+      <label>E-mail</label>
+      <input id="emailADM" placeholder="E-mail do ADM">
+
+      <label>User</label>
+      <input id="userADM" placeholder="User do ADM">
+
+      <label>Nomenclatura no jornal</label>
+      <input id="nomenADM" placeholder="Ex: Editor, Colunista, Administrador">
+
+      <label>Senha de acesso</label>
+      <input id="senhaADM" type="password" placeholder="Senha">
+
+      <p style="color:#64748b;">Por enquanto, crie o usuário também no Firebase Authentication e depois cadastre o perfil aqui usando o UID.</p>
+    </div>
+  `;
 };
 </script>
 
