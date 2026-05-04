@@ -216,33 +216,64 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
 async function carregarPosts() {
-  const snapshot = await getDocs(collection(db, "posts"));
+
+  const q = query(collection(db, "posts"), orderBy("data", "desc"));
+  const snapshot = await getDocs(q);
+
   const container = document.getElementById("posts");
 
+  container.innerHTML = "";
+
+  let primeiro = true;
+
   snapshot.forEach(doc => {
-  const post = doc.data();
+    const post = doc.data();
 
-  const div = document.createElement("div");
-  div.className = "card";
+    // 🔥 PRIMEIRO POST = MANCHETE
+    if (primeiro) {
+      primeiro = false;
 
-  // 👇 ADICIONA ISSO
-  div.style.cursor = "pointer";
-  div.onclick = () => {
-    window.location.href = `/post.html?id=${doc.id}`;
-  };
+      document.querySelector(".hero-card img").src = post.imagem;
+      document.querySelector(".hero-content h3").innerText = post.titulo;
+      document.querySelector(".hero-content p").innerText = post.conteudo.substring(0, 120);
 
-  div.innerHTML = `
-    <img src="${post.imagem}">
-    <div class="card-content">
-      <small style="color:#6D28D9;">${post.categoria}</small>
-      <h3>${post.titulo}</h3>
-      <p>${post.conteudo.substring(0, 100)}...</p>
-    </div>
-  `;
+      document.querySelector(".hero-card").onclick = () => {
+        window.location.href = `/post.html?id=${doc.id}`;
+      };
 
-  container.appendChild(div);
-});
+      return;
+    }
+
+    // 🔽 RESTO DOS POSTS
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.style.cursor = "pointer";
+
+    div.onclick = () => {
+      window.location.href = `/post.html?id=${doc.id}`;
+    };
+
+    div.innerHTML = `
+      <img src="${post.imagem}">
+      <div class="card-content">
+        <small style="color:#6D28D9;">${post.categoria}</small>
+        <h3>${post.titulo}</h3>
+        <p>${post.conteudo.substring(0, 100)}...</p>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+
 }
 
 carregarPosts();
