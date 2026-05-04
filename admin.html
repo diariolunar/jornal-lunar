@@ -260,7 +260,15 @@ onAuthStateChanged(auth, async (u) => {
   dashboard();
 });
 
-window.sair = () => signOut(auth);
+window.sair = async () => {
+  await signOut(auth);
+
+  uid = null;
+  perfil = null;
+
+  document.getElementById("login").style.display = "flex";
+  document.getElementById("layout").style.display = "none";
+};
 
 window.dashboard = async () => {
   const snap = await getDocs(collection(db,"posts"));
