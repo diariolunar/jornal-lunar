@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel ADM - Diário Lunar</title>
 
-<link rel="icon" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 
 <style>
@@ -91,6 +88,10 @@ body {
 .layout {
   display: none;
   min-height: 100vh;
+}
+
+.hamburger {
+  display: none;
 }
 
 .sidebar {
@@ -400,6 +401,10 @@ input, textarea, select {
   gap: 10px;
 }
 
+.menu-overlay {
+  display: none;
+}
+
 @media (max-width: 1000px) {
   .metricas {
     grid-template-columns: repeat(2, 1fr);
@@ -413,50 +418,151 @@ input, textarea, select {
     grid-template-columns: 80px 1fr;
   }
 }
+
 @media (max-width: 768px) {
   .login-screen {
     flex-direction: column;
-    min-height: 100vh;
     height: auto;
+    min-height: 100vh;
   }
 
   .login-left {
     flex: none;
-    min-height: 38vh;
-    padding: 35px 25px;
+    min-height: 42vh;
+    padding: 35px 24px;
   }
 
   .logo-vertical {
-    width: 150px;
+    width: 170px;
     margin-bottom: 15px;
   }
 
   .login-left h2 {
-    font-size: 20px;
-    margin: 10px 0;
+    font-size: 22px;
   }
 
   .login-left p {
-    font-size: 14px;
-    max-width: 260px;
+    font-size: 15px;
+    max-width: 300px;
   }
 
   .login-right {
     flex: none;
-    padding: 35px 25px;
+    padding: 35px 24px 50px;
   }
 
   .login-box {
     width: 100%;
-    max-width: 420px;
+    max-width: 100%;
   }
 
   .login-box h1 {
-    font-size: 28px;
+    font-size: 30px;
+  }
+
+  .login-box p {
+    font-size: 16px;
   }
 
   .login-box input {
-    font-size: 15px;
+    font-size: 16px;
+    padding: 16px;
+  }
+
+  .login-box button {
+    font-size: 17px;
+    padding: 16px;
+  }
+
+  .layout {
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .hamburger {
+    display: block;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 3001;
+    background: linear-gradient(90deg, #0EA5E9, #6D28D9);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -290px;
+    width: 270px;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 3000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.aberta {
+    left: 0;
+  }
+
+  .menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 16, 31, 0.55);
+    z-index: 2999;
+  }
+
+  .menu-overlay.ativo {
+    display: block;
+  }
+
+  .main {
+    width: 100%;
+    padding: 82px 18px 30px;
+  }
+
+  .topo-painel {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .metricas {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .materia-linha {
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+  }
+
+  .materia-linha .badge,
+  .materia-linha span,
+  .materia-linha .acoes {
+    grid-column: 1 / -1;
+  }
+
+  .acoes {
+    justify-content: flex-start;
+  }
+
+  .editor {
+    min-height: 260px;
+  }
+
+  .crop-box {
+    width: 95vw;
+    padding: 16px;
   }
 }
 </style>
@@ -488,7 +594,10 @@ input, textarea, select {
 </div>
 
 <div id="layout" class="layout">
-  <aside class="sidebar">
+  <button class="hamburger" onclick="abrirMenu()">☰</button>
+  <div id="menuOverlay" class="menu-overlay" onclick="fecharMenu()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <a class="voltar-site" href="/">← Voltar ao site</a>
 
     <img src="logo-diario-lunar2.png" class="sidebar-logo">
@@ -500,12 +609,12 @@ input, textarea, select {
       <span id="nomenclatura" class="nomenclatura"></span>
     </div>
 
-    <button class="menu-btn active" onclick="dashboard()">Painel</button>
-    <button class="menu-btn" onclick="novaMateria()">Nova Matéria</button>
-    <button class="menu-btn" onclick="listar()">Matérias Publicadas</button>
-    <button class="menu-btn" onclick="editarPerfil()">Editar Perfil</button>
-    <button class="menu-btn" id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Cadastrar ADM</button>
-    <button class="menu-btn" onclick="sair()">Sair</button>
+    <button class="menu-btn active" onclick="dashboard(); fecharMenu()">Painel</button>
+    <button class="menu-btn" onclick="novaMateria(); fecharMenu()">Nova Matéria</button>
+    <button class="menu-btn" onclick="listar(); fecharMenu()">Matérias Publicadas</button>
+    <button class="menu-btn" onclick="editarPerfil(); fecharMenu()">Editar Perfil</button>
+    <button class="menu-btn" id="btnCadastrar" onclick="cadastrarADM(); fecharMenu()" style="display:none;">Cadastrar ADM</button>
+    <button class="menu-btn" onclick="sair(); fecharMenu()">Sair</button>
   </aside>
 
   <main class="main" id="conteudo"></main>
@@ -585,6 +694,16 @@ let fotoADMBlob = null;
 let cropper = null;
 let cropResolver = null;
 let cropConfigAtual = null;
+
+window.abrirMenu = function () {
+  document.getElementById("sidebar").classList.add("aberta");
+  document.getElementById("menuOverlay").classList.add("ativo");
+};
+
+window.fecharMenu = function () {
+  document.getElementById("sidebar").classList.remove("aberta");
+  document.getElementById("menuOverlay").classList.remove("ativo");
+};
 
 window.logar = async () => {
   try {
