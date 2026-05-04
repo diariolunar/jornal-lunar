@@ -11,6 +11,21 @@ body {
   background: #F8F6F1;
 }
 
+.login {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
 .layout {
   display: none;
   height: 100vh;
@@ -21,6 +36,17 @@ body {
   background: #07101F;
   color: white;
   padding: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.voltar {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .sidebar img {
@@ -33,8 +59,7 @@ body {
 }
 
 .sidebar button {
-  width: 100%;
-  margin-top: 12px;
+  margin-top: 10px;
   padding: 12px;
   border: none;
   border-radius: 10px;
@@ -57,33 +82,42 @@ input, textarea, select {
   padding: 10px;
   margin-bottom: 10px;
 }
-
-.login {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 </style>
 </head>
 
 <body>
 
 <div id="login" class="login">
-  <button onclick="login()">Entrar com Google</button>
+  <div class="login-box">
+    <h2>Área ADM</h2>
+    <input id="email" placeholder="Email">
+    <input id="senha" type="password" placeholder="Senha">
+    <button onclick="logar()">Entrar</button>
+  </div>
 </div>
 
 <div id="layout" class="layout">
 
   <div class="sidebar">
+
+    <div class="voltar" onclick="window.location.href='/'">
+      ← Voltar ao site
+    </div>
+
     <img id="foto">
     <h3 id="nome"></h3>
-    <p id="email"></p>
+    <p id="user"></p>
+    <small id="nomenclatura"></small>
+
+    <hr>
 
     <button onclick="dashboard()">Dashboard</button>
     <button onclick="novaMateria()">Nova Matéria</button>
-    <button onclick="listarMaterias()">Matérias</button>
-    <button onclick="logout()">Sair</button>
+    <button onclick="listar()">Matérias</button>
+    <button onclick="editarPerfil()">Editar Informações</button>
+    <button id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Cadastrar ADM</button>
+    <button onclick="sair()">Sair</button>
+
   </div>
 
   <div class="main" id="conteudo"></div>
@@ -94,94 +128,92 @@ input, textarea, select {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import {
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
+  signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 import {
   getFirestore,
+  doc,
+  getDoc,
   collection,
   addDoc,
   getDocs,
-  doc,
   deleteDoc,
-  updateDoc,
-  getDoc
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
   authDomain: "diario-lunar-dee91.firebaseapp.com",
   projectId: "diario-lunar-dee91"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-let user = null;
-let editId = null;
-
-window.login = async () => {
-  await signInWithPopup(auth, provider);
-};
-
-onAuthStateChanged(auth, (u) => {
-  if (u) {
-    user = u;
-
-    document.getElementById("login").style.display = "none";
-    document.getElementById("layout").style.display = "flex";
-
-    document.getElementById("foto").src = u.photoURL;
-    document.getElementById("nome").innerText = u.displayName;
-    document.getElementById("email").innerText = u.email;
-
-    dashboard();
-  } else {
-    document.getElementById("login").style.display = "flex";
-    document.getElementById("layout").style.display = "none";
-  }
 });
 
-window.logout = () => signOut(auth);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let uid = null;
+let perfil = null;
+let editId = null;
+
+window.logar = async () => {
+  const user = await signInWithEmailAndPassword(auth, email.value, senha.value);
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  uid = user.uid;
+
+  const ref = doc(db, "admins", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    alert("Acesso não autorizado.");
+    signOut(auth);
+    return;
+  }
+
+  perfil = snap.data();
+
+  login.style.display = "none";
+  layout.style.display = "flex";
+
+  nome.innerText = perfil.nome;
+  user.innerText = "@" + perfil.user;
+  nomenclatura.innerText = perfil.nomenclatura;
+
+  if (perfil.role === "superadmin") {
+    btnCadastrar.style.display = "block";
+  }
+
+  dashboard();
+});
+
+window.sair = () => signOut(auth);
 
 window.dashboard = async () => {
-  const snap = await getDocs(collection(db, "posts"));
+  const snap = await getDocs(collection(db,"posts"));
 
-  document.getElementById("conteudo").innerHTML = `
+  conteudo.innerHTML = `
     <div class="card">
-      <h1>Painel Administrativo</h1>
+      <h1>Painel</h1>
       <p>Total de matérias: ${snap.size}</p>
     </div>
   `;
 };
 
-window.novaMateria = (post=null, id=null) => {
+window.novaMateria = (p=null,id=null) => {
   editId = id;
 
-  document.getElementById("conteudo").innerHTML = `
+  conteudo.innerHTML = `
     <div class="card">
-      <h1>${post ? "Editar" : "Nova"} Matéria</h1>
-
-      <input id="titulo" placeholder="Título" value="${post?.titulo || ""}">
-      <input id="imagem" placeholder="Imagem" value="${post?.imagem || ""}">
-      
-      <select id="categoria">
-        <option>Literatura</option>
-        <option>Comunidade</option>
-        <option>Autores</option>
-        <option>Eventos</option>
-        <option>Resenhas</option>
-        <option>Entrevistas</option>
-      </select>
-
-      <input id="resumo" placeholder="Resumo" value="${post?.resumo || ""}">
-      <textarea id="conteudo">${post?.conteudo || ""}</textarea>
-
+      <h1>Nova Matéria</h1>
+      <input id="titulo" value="${p?.titulo||""}" placeholder="Título">
+      <input id="imagem" value="${p?.imagem||""}" placeholder="Imagem">
+      <input id="resumo" value="${p?.resumo||""}" placeholder="Resumo">
+      <textarea id="conteudoTxt">${p?.conteudo||""}</textarea>
       <button onclick="salvar()">Salvar</button>
     </div>
   `;
@@ -191,54 +223,101 @@ window.salvar = async () => {
   const data = {
     titulo: titulo.value,
     imagem: imagem.value,
-    categoria: categoria.value,
     resumo: resumo.value,
-    conteudo: conteudo.value,
-    autor: user.email,
+    conteudo: conteudoTxt.value,
+    autor: perfil.user,
     data: new Date()
   };
 
-  if (editId) {
-    await updateDoc(doc(db,"posts",editId), data);
+  if(editId){
+    await updateDoc(doc(db,"posts",editId),data);
   } else {
-    await addDoc(collection(db,"posts"), data);
+    await addDoc(collection(db,"posts"),data);
   }
 
-  listarMaterias();
+  listar();
 };
 
-window.listarMaterias = async () => {
+window.listar = async () => {
   const snap = await getDocs(collection(db,"posts"));
 
   let html = `<div class="card"><h1>Matérias</h1>`;
 
-  snap.forEach(d => {
-    const p = d.data();
-
-    html += `
-      <div style="margin-top:15px;">
-        <h3>${p.titulo}</h3>
+  snap.forEach(d=>{
+    html+=`
+      <div>
+        <h3>${d.data().titulo}</h3>
         <button onclick="editar('${d.id}')">Editar</button>
         <button onclick="excluir('${d.id}')">Excluir</button>
       </div>
     `;
   });
 
-  html += `</div>`;
-
-  document.getElementById("conteudo").innerHTML = html;
+  html+="</div>";
+  conteudo.innerHTML = html;
 };
 
 window.editar = async (id) => {
   const snap = await getDoc(doc(db,"posts",id));
-  novaMateria(snap.data(), id);
+  novaMateria(snap.data(),id);
 };
 
 window.excluir = async (id) => {
   if(confirm("Excluir?")){
     await deleteDoc(doc(db,"posts",id));
-    listarMaterias();
+    listar();
   }
+};
+
+window.editarPerfil = () => {
+  conteudo.innerHTML = `
+    <div class="card">
+      <h1>Editar Perfil</h1>
+      <input id="nomeNovo" value="${perfil.nome}">
+      <input id="userNovo" value="${perfil.user}">
+      <input id="nomenNovo" value="${perfil.nomenclatura}">
+      <button onclick="salvarPerfil()">Salvar</button>
+    </div>
+  `;
+};
+
+window.salvarPerfil = async () => {
+  await updateDoc(doc(db,"admins",uid),{
+    nome: nomeNovo.value,
+    user: userNovo.value,
+    nomenclatura: nomenNovo.value
+  });
+
+  alert("Atualizado");
+  location.reload();
+};
+
+window.cadastrarADM = () => {
+  conteudo.innerHTML = `
+    <div class="card">
+      <h1>Novo ADM</h1>
+      <input id="nomeADM" placeholder="Nome">
+      <input id="emailADM" placeholder="Email">
+      <input id="userADM" placeholder="User">
+      <input id="nomenADM" placeholder="Nomenclatura">
+      <input id="senhaADM" placeholder="Senha">
+      <button onclick="salvarADM()">Criar</button>
+    </div>
+  `;
+};
+
+window.salvarADM = async () => {
+  alert("Criação de usuário precisa ser feita manual no Firebase Auth por segurança.");
+
+  await addDoc(collection(db,"admins"),{
+    nome: nomeADM.value,
+    email: emailADM.value,
+    user: userADM.value,
+    nomenclatura: nomenADM.value,
+    role: "admin"
+  });
+
+  alert("ADM salvo no banco.");
 };
 </script>
 
