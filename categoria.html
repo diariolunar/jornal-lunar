@@ -6,92 +6,321 @@
 
 <style>
 body {
-  font-family: Arial;
-  background: #F8F6F1;
   margin: 0;
+  font-family: Arial, sans-serif;
+  background: #F8F6F1;
+  color: #07101F;
 }
 
-.container {
-  padding: 40px;
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 50px;
+}
+
+.logo img {
+  height: 70px;
+}
+
+.menu a {
+  margin: 0 14px;
+  text-decoration: none;
+  color: #07101F;
+  font-weight: 500;
+}
+
+.btn {
+  background: #6D28D9;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.header-categoria {
+  padding: 60px 50px 30px;
+}
+
+.header-categoria p {
+  color: #0EA5E9;
+  font-weight: bold;
+}
+
+.header-categoria h1 {
+  font-size: 48px;
+  margin: 10px 0;
+}
+
+.header-categoria span {
+  color: #6D28D9;
+}
+
+.section {
+  padding: 20px 50px 70px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
 }
 
 .card {
   background: white;
-  border-radius: 15px;
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.07);
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
 }
 
 .card img {
   width: 100%;
-  height: 180px;
+  height: 210px;
   object-fit: cover;
+  display: block;
 }
 
 .card-content {
-  padding: 15px;
+  padding: 20px;
+}
+
+.card-content small {
+  color: #6D28D9;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.card-content h3 {
+  font-size: 22px;
+  margin: 12px 0;
+}
+
+.card-content p {
+  color: #333;
+  line-height: 1.5;
+}
+
+.card-content a {
+  color: #0EA5E9;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.vazio {
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+}
+
+.footer {
+  background: url("footer.png") center/cover no-repeat;
+  color: white;
+  padding: 40px;
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap: 30px;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(7,16,31,0.8);
+}
+
+.footer > * {
+  position: relative;
+}
+
+@media (max-width: 850px) {
+  .navbar {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .header-categoria {
+    padding: 35px 25px 20px;
+  }
+
+  .header-categoria h1 {
+    font-size: 36px;
+  }
+
+  .section {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h1 id="titulo"></h1>
+<div class="navbar">
+  <div class="logo">
+    <img src="logo-diario-lunar.png">
+  </div>
+
+  <div class="menu">
+    <a href="/">Início</a>
+    <a href="/categoria.html?tipo=Literatura">Matérias</a>
+    <a href="/categoria.html?tipo=Resenhas">Resenhas</a>
+    <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
+    <a href="/categoria.html?tipo=Comunidade">Comunidade</a>
+    <a href="#">Sobre</a>
+  </div>
+
+  <a href="/admin.html" class="btn">Área ADM</a>
+</div>
+
+<section class="header-categoria">
+  <p>✦ Categoria Lunar</p>
+  <h1>Matérias de <span id="nomeCategoria"></span></h1>
+  <p id="descricaoCategoria">Conteúdos selecionados do Diário Lunar.</p>
+</section>
+
+<section class="section">
   <div class="grid" id="posts"></div>
+</section>
+
+<div class="footer">
+  <div>
+    <img src="logo-diario-lunar2.png" style="height:60px; margin-right:10px;">
+    <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
+    <p>Instagram · Site Lunar · E-mail</p>
+  </div>
+
+  <div>
+    <h3>Navegação</h3>
+    <p>Início</p>
+    <p>Matérias</p>
+    <p>Resenhas</p>
+    <p>Entrevistas</p>
+    <p>Sobre</p>
+  </div>
+
+  <div>
+    <h3>Categorias</h3>
+    <p>Literatura</p>
+    <p>Comunidade</p>
+    <p>Autores</p>
+    <p>Eventos</p>
+    <p>Destaques Lunar</p>
+  </div>
+
+  <div>
+    <h3>Institucional</h3>
+    <p>Sobre o Diário Lunar</p>
+    <p>Nossa missão</p>
+    <p>Equipe</p>
+    <p>Contato</p>
+    <p>Política de Privacidade</p>
+  </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
   authDomain: "diario-lunar-dee91.firebaseapp.com",
-  projectId: "diario-lunar-dee91"
+  projectId: "diario-lunar-dee91",
+  storageBucket: "diario-lunar-dee91.firebasestorage.app",
+  messagingSenderId: "817640390152",
+  appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const tipo = new URLSearchParams(window.location.search).get("tipo");
+const tipo = new URLSearchParams(window.location.search).get("tipo") || "Literatura";
 
-document.getElementById("titulo").innerText = tipo;
+document.getElementById("nomeCategoria").innerText = tipo;
 
-async function carregar() {
-  const snap = await getDocs(collection(db, "posts"));
+const descricoes = {
+  "Literatura": "Matérias sobre livros, narrativas, leitura e construção literária.",
+  "Comunidade": "Notícias, ações e movimentos da comunidade Lunar.",
+  "Resenhas": "Leituras comentadas, análises e impressões sobre obras em destaque.",
+  "Entrevistas": "Conversas com autores, leitores e criadores da comunidade.",
+  "Autores": "Destaques, perfis e trajetórias de quem escreve.",
+  "Eventos": "Chamadas, encontros, ações e novidades especiais.",
+  "Destaques Lunar": "Obras, projetos e conteúdos selecionados pelo Diário Lunar."
+};
+
+document.getElementById("descricaoCategoria").innerText =
+  descricoes[tipo] || "Conteúdos selecionados do Diário Lunar.";
+
+async function carregarCategoria() {
+  const q = query(collection(db, "posts"), orderBy("data", "desc"));
+  const snapshot = await getDocs(q);
+
   const container = document.getElementById("posts");
+  container.innerHTML = "";
 
-  snap.forEach(doc => {
-    const post = doc.data();
+  let total = 0;
+
+  snapshot.forEach((docItem) => {
+    const post = docItem.data();
 
     if (post.categoria === tipo) {
+      total++;
+
       const div = document.createElement("div");
       div.className = "card";
 
       div.onclick = () => {
-        window.location.href = `/post.html?id=${doc.id}`;
+        window.location.href = `/post.html?id=${docItem.id}`;
       };
 
       div.innerHTML = `
-        <img src="${post.imagem}">
+        <img src="${post.imagem || ""}">
         <div class="card-content">
-          <h3>${post.titulo}</h3>
+          <small>${post.categoria || "Matéria"}</small>
+          <h3>${post.titulo || ""}</h3>
+          <p>${(post.conteudo || "").substring(0, 120)}...</p>
+          <a href="/post.html?id=${docItem.id}">Ler matéria →</a>
         </div>
       `;
 
       container.appendChild(div);
     }
   });
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="vazio">
+        <h2>Nenhuma matéria encontrada</h2>
+        <p>Ainda não existem publicações nesta categoria.</p>
+        <a href="/" class="btn">Voltar para o início</a>
+      </div>
+    `;
+  }
 }
 
-carregar();
+carregarCategoria();
 </script>
 
 </body>
