@@ -5,14 +5,30 @@
   <title>Painel ADM - Diário Lunar</title>
 </head>
 
-<body style="font-family: Arial; max-width:600px; margin:auto;">
+<body style="font-family: Arial; max-width:700px; margin:auto; padding:30px;">
 
 <h1>Painel ADM</h1>
 
-<input id="titulo" placeholder="Título da matéria" style="width:100%; margin-bottom:10px;">
-<textarea id="conteudo" placeholder="Conteúdo" style="width:100%; height:150px;"></textarea>
+<input id="titulo" placeholder="Título da matéria" style="width:100%; padding:10px; margin-bottom:10px;">
+
+<input id="imagem" placeholder="Link da imagem da matéria" style="width:100%; padding:10px; margin-bottom:10px;">
+
+<select id="categoria" style="width:100%; padding:10px; margin-bottom:10px;">
+  <option value="">Escolha a categoria</option>
+  <option value="Resenha">Resenha</option>
+  <option value="Entrevista">Entrevista</option>
+  <option value="Obra em Destaque">Obra em Destaque</option>
+  <option value="Comunidade Lunar">Comunidade Lunar</option>
+  <option value="Dicas de Escrita">Dicas de Escrita</option>
+</select>
+
+<textarea id="conteudo" placeholder="Conteúdo da matéria" style="width:100%; height:220px; padding:10px;"></textarea>
+
 <br><br>
-<button onclick="publicar()">Publicar</button>
+
+<button onclick="publicar()" style="background:#6B21A8; color:white; padding:12px 22px; border:none; border-radius:10px;">
+  Publicar matéria
+</button>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -38,28 +54,38 @@
     if (user) {
       userAtual = user;
     } else {
-      alert("Você precisa estar logado");
+      alert("Você precisa estar logado.");
       window.location.href = "/";
     }
   });
 
   window.publicar = async function () {
     const titulo = document.getElementById("titulo").value;
+    const imagem = document.getElementById("imagem").value;
+    const categoria = document.getElementById("categoria").value;
     const conteudo = document.getElementById("conteudo").value;
 
-    if (!titulo || !conteudo) {
-      alert("Preencha tudo");
+    if (!titulo || !imagem || !categoria || !conteudo) {
+      alert("Preencha todos os campos.");
       return;
     }
 
     await addDoc(collection(db, "posts"), {
       titulo,
+      imagem,
+      categoria,
       conteudo,
       autor: userAtual.email,
+      curtidas: 0,
       data: new Date()
     });
 
     alert("Matéria publicada!");
+
+    document.getElementById("titulo").value = "";
+    document.getElementById("imagem").value = "";
+    document.getElementById("categoria").value = "";
+    document.getElementById("conteudo").value = "";
   };
 </script>
 
