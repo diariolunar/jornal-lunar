@@ -313,7 +313,7 @@ async function carregarPost() {
     document.getElementById("titulo").innerText = post.titulo || "";
     document.getElementById("categoria").innerText = post.categoria || "";
     document.getElementById("imagem").src = post.imagem || "";
-    document.getElementById("conteudo").innerText = post.conteudo || "";
+    document.getElementById("conteudo").innerHTML = post.conteudo || "";
     document.getElementById("meta").innerText = `Por ${post.autor || "Diário Lunar"}`;
     document.getElementById("curtidas").innerText = post.curtidas || 0;
 
