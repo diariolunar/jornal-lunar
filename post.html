@@ -245,7 +245,8 @@ import {
   collection,
   addDoc,
   getDocs,
-  setDoc
+  setDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -280,6 +281,9 @@ document.getElementById("salvarUsuarioBtn").onclick = function () {
 
   localStorage.setItem("usuarioWattpad", usuario);
   alert("Usuário salvo!");
+
+  carregarComentarios();
+  verificarCurtida();
 };
 
 function pegarUsuario() {
@@ -312,8 +316,28 @@ async function carregarPost() {
     document.getElementById("conteudo").innerText = post.conteudo || "";
     document.getElementById("meta").innerText = `Por ${post.autor || "Diário Lunar"}`;
     document.getElementById("curtidas").innerText = post.curtidas || 0;
+
+    verificarCurtida();
   } else {
     document.querySelector(".post-container").innerHTML = "<h1>Matéria não encontrada</h1>";
+  }
+}
+
+async function verificarCurtida() {
+  const usuario = inputUsuario.value.trim().toLowerCase().replaceAll(" ", "");
+
+  if (!usuario || !id) return;
+
+  const likeId = `${id}_${usuario}`;
+  const likeRef = doc(db, "likes", likeId);
+  const likeSnap = await getDoc(likeRef);
+
+  const total = document.getElementById("curtidas").innerText || 0;
+
+  if (likeSnap.exists()) {
+    document.getElementById("curtirBtn").innerHTML = `💜 Curtido (<span id="curtidas">${total}</span>)`;
+  } else {
+    document.getElementById("curtirBtn").innerHTML = `❤️ Curtir (<span id="curtidas">${total}</span>)`;
   }
 }
 
@@ -325,15 +349,25 @@ async function curtir() {
   const likeRef = doc(db, "likes", likeId);
   const likeSnap = await getDoc(likeRef);
 
-  if (likeSnap.exists()) {
-    alert("Você já curtiu essa matéria.");
-    return;
-  }
-
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
 
-  const atual = postSnap.data().curtidas || 0;
+  let atual = postSnap.data().curtidas || 0;
+
+  if (likeSnap.exists()) {
+    await deleteDoc(likeRef);
+
+    const novoTotal = Math.max(atual - 1, 0);
+
+    await updateDoc(postRef, {
+      curtidas: novoTotal
+    });
+
+    document.getElementById("curtidas").innerText = novoTotal;
+    document.getElementById("curtirBtn").innerHTML = `❤️ Curtir (<span id="curtidas">${novoTotal}</span>)`;
+
+    return;
+  }
 
   await setDoc(likeRef, {
     postId: id,
@@ -346,7 +380,8 @@ async function curtir() {
   });
 
   document.getElementById("curtidas").innerText = atual + 1;
-};
+  document.getElementById("curtirBtn").innerHTML = `💜 Curtido (<span id="curtidas">${atual + 1}</span>)`;
+}
 
 async function comentar() {
   const usuario = pegarUsuario();
@@ -368,9 +403,11 @@ async function comentar() {
 
   document.getElementById("comentarioInput").value = "";
   carregarComentarios();
-};
+}
 
 async function carregarComentarios() {
+  const usuarioAtual = inputUsuario.value.trim().toLowerCase().replaceAll(" ", "");
+
   const snapshot = await getDocs(collection(db, "comentarios"));
   const container = document.getElementById("listaComentarios");
 
@@ -383,15 +420,36 @@ async function carregarComentarios() {
       const div = document.createElement("div");
       div.className = "comentario";
 
+      let botaoExcluir = "";
+
+      if (usuarioAtual && c.usuario === usuarioAtual) {
+        botaoExcluir = `
+          <button onclick="apagarComentario('${item.id}')" style="margin-top:8px; background:#07101F; color:white; padding:7px 12px; border:none; border-radius:8px; cursor:pointer;">
+            Apagar comentário
+          </button>
+        `;
+      }
+
       div.innerHTML = `
         <strong style="color:#6D28D9;">@${c.usuario}</strong>
         <p style="margin:8px 0 0;">${c.texto}</p>
+        ${botaoExcluir}
       `;
 
       container.appendChild(div);
     }
   });
 }
+
+window.apagarComentario = async function (comentarioId) {
+  const confirmar = confirm("Deseja apagar este comentário?");
+
+  if (!confirmar) return;
+
+  await deleteDoc(doc(db, "comentarios", comentarioId));
+
+  carregarComentarios();
+};
 
 document.getElementById("curtirBtn").onclick = curtir;
 document.getElementById("comentarBtn").onclick = comentar;
