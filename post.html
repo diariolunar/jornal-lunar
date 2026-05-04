@@ -16,32 +16,35 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 40px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
+  padding: 24px 50px;
 }
 
 .logo img {
-  height: 40px;
+  height: 70px;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .menu a {
-  margin: 0 10px;
+  margin: 6px 10px;
   text-decoration: none;
   color: #07101F;
+  font-weight: 500;
 }
 
 .btn {
   background: #6D28D9;
   color: white;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 12px 24px;
+  border-radius: 25px;
   text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
 }
 
 .post-container {
@@ -84,7 +87,6 @@ h1 {
   box-shadow: 0 8px 25px rgba(0,0,0,0.05);
   font-size: 18px;
   line-height: 1.8;
-  white-space: pre-line;
 }
 
 .interacao {
@@ -125,11 +127,11 @@ h1 {
 .footer {
   background: url("footer.png") center/cover no-repeat;
   color: white;
-  padding: 40px;
+  padding: 45px 50px;
   margin-top: 60px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 30px;
+  grid-template-columns: 1.4fr 1.2fr 1fr;
+  gap: 35px;
   position: relative;
 }
 
@@ -137,11 +139,49 @@ h1 {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(7,16,31,0.8);
+  background: rgba(7,16,31,0.82);
 }
 
 .footer > * {
   position: relative;
+}
+
+.footer a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin: 8px 0;
+}
+
+.newsletter-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.newsletter-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+@media (max-width: 850px) {
+  .navbar {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
@@ -150,15 +190,19 @@ h1 {
 
 <div class="navbar">
   <div class="logo">
-    <img src="logo-diario-lunar.png" style="height:60px; margin-right:10px;">
+    <img src="logo-diario-lunar.png">
   </div>
 
   <div class="menu">
     <a href="/">Início</a>
-    <a href="#">Matérias</a>
-    <a href="#">Resenhas</a>
-    <a href="#">Entrevistas</a>
-    <a href="#">Sobre</a>
+    <a href="/materias.html">Todas as Matérias</a>
+    <a href="/categoria.html?tipo=Literatura">Literatura</a>
+    <a href="/categoria.html?tipo=Comunidade">Comunidade</a>
+    <a href="/categoria.html?tipo=Autores">Autores</a>
+    <a href="/categoria.html?tipo=Eventos">Eventos</a>
+    <a href="/categoria.html?tipo=Resenhas">Resenhas</a>
+    <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
+    <a href="/categoria.html?tipo=Destaques Lunar">Destaques Lunar</a>
   </div>
 
   <a href="/admin.html" class="btn">Área ADM</a>
@@ -204,34 +248,23 @@ h1 {
   <div>
     <img src="logo-diario-lunar2.png" style="height:60px; margin-right:10px;">
     <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
-    <p>Instagram · Site Lunar · E-mail</p>
+    <a href="https://www.instagram.com/_projeto.lunar?igsh=YWd2enkzMjJmeGxv" target="_blank">Instagram</a>
+    <a href="https://projetolunar.com.br" target="_blank">Site Lunar</a>
+    <a href="mailto:diariolunar47@gmail.com">E-mail</a>
   </div>
 
-  <div>
-    <h3>Navegação</h3>
-    <p>Início</p>
-    <p>Matérias</p>
-    <p>Resenhas</p>
-    <p>Entrevistas</p>
-    <p>Sobre</p>
-  </div>
-
-  <div>
-    <h3>Categorias</h3>
-    <p>Literatura</p>
-    <p>Comunidade</p>
-    <p>Autores</p>
-    <p>Eventos</p>
-    <p>Destaques Lunar</p>
+  <div class="newsletter-box">
+    <h3>Receba novidades lunares</h3>
+    <p>Fique por dentro das matérias, destaques e novidades da comunidade.</p>
+    <input placeholder="Seu melhor e-mail">
+    <a href="#" class="btn">Inscrever-se</a>
   </div>
 
   <div>
     <h3>Institucional</h3>
-    <p>Sobre o Diário Lunar</p>
-    <p>Nossa missão</p>
-    <p>Equipe</p>
-    <p>Contato</p>
-    <p>Política de Privacidade</p>
+    <a href="/sobre.html">Sobre o Diário Lunar</a>
+    <a href="/equipe.html">Equipe</a>
+    <a href="/privacidade.html">Política de Privacidade</a>
   </div>
 </div>
 
@@ -314,7 +347,7 @@ async function carregarPost() {
     document.getElementById("categoria").innerText = post.categoria || "";
     document.getElementById("imagem").src = post.imagem || "";
     document.getElementById("conteudo").innerHTML = post.conteudo || "";
-    document.getElementById("meta").innerText = `Por ${post.autor || "Diário Lunar"}`;
+    document.getElementById("meta").innerText = `Por @${post.autor || "diario_lunar"}`;
     document.getElementById("curtidas").innerText = post.curtidas || 0;
 
     verificarCurtida();
