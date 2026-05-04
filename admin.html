@@ -32,22 +32,8 @@ body {
   margin-bottom: 20px;
 }
 
-.login-left h1 {
-  font-size: 42px;
-  margin: 0;
-}
-
-.login-left h2 {
-  margin-top: 30px;
-}
-
-.login-left p {
-  color: #ccc;
-}
-
 .login-right {
   flex: 1;
-  background: #F8F6F1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -73,11 +59,9 @@ body {
   border-radius: 12px;
   background: linear-gradient(90deg, #0EA5E9, #6D28D9);
   color: white;
-  font-size: 16px;
-  cursor: pointer;
 }
 
-/* LAYOUT ADM */
+/* ADMIN */
 .layout {
   display: none;
   height: 100vh;
@@ -90,15 +74,6 @@ body {
   padding: 25px;
   display: flex;
   flex-direction: column;
-}
-
-.voltar {
-  border: 1px solid rgba(255,255,255,0.2);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  margin-bottom: 20px;
-  cursor: pointer;
 }
 
 .sidebar img {
@@ -119,16 +94,30 @@ body {
   padding: 30px;
 }
 
-.card {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
+/* DASHBOARD */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 20px;
 }
 
-input, textarea, select {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+.card-metric {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.lista {
+  background: white;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 18px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
 }
 </style>
 </head>
@@ -140,24 +129,16 @@ input, textarea, select {
 
   <div class="login-left">
     <img src="logo-vertical.png" class="logo-vertical">
-
     <h1>DIÁRIO LUNAR</h1>
-
-    <h2>Painel administrativo</h2>
-    <p>Acesse sua conta para gerenciar o conteúdo do site.</p>
+    <p>Painel administrativo</p>
   </div>
 
   <div class="login-right">
     <div class="login-box">
-
-      <h2>Entrar na Área ADM</h2>
-      <p>Digite suas credenciais</p>
-
-      <input id="email" placeholder="Usuário ou e-mail">
+      <h2>Entrar</h2>
+      <input id="email" placeholder="Email">
       <input id="senha" type="password" placeholder="Senha">
-
       <button onclick="logar()">Entrar</button>
-
     </div>
   </div>
 
@@ -167,25 +148,19 @@ input, textarea, select {
 <div id="layout" class="layout">
 
   <div class="sidebar">
-
-    <div class="voltar" onclick="window.location.href='/'">
-      ← Voltar ao site
-    </div>
+    <div onclick="window.location.href='/'">← Voltar</div>
 
     <img id="foto">
     <h3 id="nome"></h3>
     <p id="user"></p>
     <small id="nomenclatura"></small>
 
-    <hr>
-
-    <button onclick="dashboard()">Dashboard</button>
+    <button onclick="dashboard()">Painel</button>
     <button onclick="novaMateria()">Nova Matéria</button>
     <button onclick="listar()">Matérias</button>
-    <button onclick="editarPerfil()">Editar Informações</button>
-    <button id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Cadastrar ADM</button>
+    <button onclick="editarPerfil()">Perfil</button>
+    <button id="btnCadastrar" onclick="cadastrarADM()" style="display:none;">Novo ADM</button>
     <button onclick="sair()">Sair</button>
-
   </div>
 
   <div class="main" id="conteudo"></div>
@@ -194,28 +169,13 @@ input, textarea, select {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, addDoc, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
-  authDomain: "diario-lunar-dee91.firebaseapp.com",
-  projectId: "diario-lunar-dee91"
+  apiKey:"AIzaSy...",
+  authDomain:"diario-lunar-dee91.firebaseapp.com",
+  projectId:"diario-lunar-dee91"
 });
 
 const auth = getAuth(app);
@@ -224,157 +184,127 @@ const db = getFirestore(app);
 let uid, perfil, editId;
 
 window.logar = async () => {
-  try {
-    await signInWithEmailAndPassword(auth, email.value, senha.value);
-  } catch {
-    alert("Login inválido");
-  }
+  await signInWithEmailAndPassword(auth,email.value,senha.value);
 };
 
-onAuthStateChanged(auth, async (u) => {
-  if (!u) return;
+onAuthStateChanged(auth, async (u)=>{
+  if(!u) return;
 
   uid = u.uid;
 
   const snap = await getDoc(doc(db,"admins",uid));
 
-  if (!snap.exists()) {
-    alert("Sem permissão");
+  if(!snap.exists()){
+    alert("Sem acesso");
     signOut(auth);
     return;
   }
 
   perfil = snap.data();
 
-  login.style.display = "none";
-  layout.style.display = "flex";
+  login.style.display="none";
+  layout.style.display="flex";
 
-  nome.innerText = perfil.nome;
-  user.innerText = "@"+perfil.user;
-  nomenclatura.innerText = perfil.nomenclatura;
+  nome.innerText=perfil.nome;
+  user.innerText="@"+perfil.user;
+  nomenclatura.innerText=perfil.nomenclatura;
 
-  if (perfil.role === "superadmin") {
-    btnCadastrar.style.display = "block";
-  }
+  if(perfil.role==="superadmin") btnCadastrar.style.display="block";
 
   dashboard();
 });
 
-window.sair = async () => {
+window.sair = async ()=>{
   await signOut(auth);
-
-  uid = null;
-  perfil = null;
-
-  document.getElementById("login").style.display = "flex";
-  document.getElementById("layout").style.display = "none";
+  login.style.display="flex";
+  layout.style.display="none";
 };
 
-window.dashboard = async () => {
+window.dashboard = async ()=>{
   const snap = await getDocs(collection(db,"posts"));
-  conteudo.innerHTML = `<div class="card"><h1>Painel</h1><p>Total: ${snap.size}</p></div>`;
+
+  let lista="";
+
+  snap.forEach(d=>{
+    lista+=`<div class="item">
+      <span>${d.data().titulo}</span>
+      <span>Publicado</span>
+    </div>`;
+  });
+
+  conteudo.innerHTML=`
+    <h1>Painel</h1>
+
+    <div class="cards">
+      <div class="card-metric">Matérias<br><h2>${snap.size}</h2></div>
+      <div class="card-metric">Views<br><h2>---</h2></div>
+      <div class="card-metric">Comentários<br><h2>---</h2></div>
+      <div class="card-metric">Este mês<br><h2>${snap.size}</h2></div>
+    </div>
+
+    <div class="lista">
+      <h2>Últimas matérias</h2>
+      ${lista}
+    </div>
+  `;
 };
 
-window.novaMateria = (p=null,id=null) => {
-  editId=id;
+window.novaMateria = ()=>{
   conteudo.innerHTML=`
-  <div class="card">
-  <h1>Matéria</h1>
-  <input id="titulo" value="${p?.titulo||""}" placeholder="Título">
-  <input id="imagem" value="${p?.imagem||""}" placeholder="Imagem">
-  <input id="resumo" value="${p?.resumo||""}" placeholder="Resumo">
-  <textarea id="conteudoTxt">${p?.conteudo||""}</textarea>
-  <button onclick="salvar()">Salvar</button>
-  </div>`;
+    <h1>Nova Matéria</h1>
+    <input id="titulo">
+    <textarea id="conteudoTxt"></textarea>
+    <button onclick="salvar()">Salvar</button>
+  `;
 };
 
 window.salvar = async ()=>{
-  const data={
+  await addDoc(collection(db,"posts"),{
     titulo:titulo.value,
-    imagem:imagem.value,
-    resumo:resumo.value,
     conteudo:conteudoTxt.value,
     autor:perfil.user,
     data:new Date()
-  };
-
-  if(editId){
-    await updateDoc(doc(db,"posts",editId),data);
-  } else {
-    await addDoc(collection(db,"posts"),data);
-  }
-
+  });
   listar();
 };
 
 window.listar = async ()=>{
-  const snap=await getDocs(collection(db,"posts"));
-  let html=`<div class="card"><h1>Matérias</h1>`;
+  const snap = await getDocs(collection(db,"posts"));
+
+  let html="";
+
   snap.forEach(d=>{
-    html+=`<div>
-    <h3>${d.data().titulo}</h3>
-    <button onclick="editar('${d.id}')">Editar</button>
-    <button onclick="excluir('${d.id}')">Excluir</button>
+    html+=`
+    <div>
+      ${d.data().titulo}
+      <button onclick="excluir('${d.id}')">X</button>
     </div>`;
   });
-  html+=`</div>`;
+
   conteudo.innerHTML=html;
 };
 
-window.editar = async(id)=>{
-  const snap=await getDoc(doc(db,"posts",id));
-  novaMateria(snap.data(),id);
-};
-
 window.excluir = async(id)=>{
-  if(confirm("Excluir?")){
-    await deleteDoc(doc(db,"posts",id));
-    listar();
-  }
+  await deleteDoc(doc(db,"posts",id));
+  listar();
 };
 
 window.editarPerfil = ()=>{
   conteudo.innerHTML=`
-  <div class="card">
-  <h1>Perfil</h1>
-  <input id="nomeNovo" value="${perfil.nome}">
-  <input id="userNovo" value="${perfil.user}">
-  <input id="nomenNovo" value="${perfil.nomenclatura}">
-  <button onclick="salvarPerfil()">Salvar</button>
-  </div>`;
+    <input id="nomeNovo" value="${perfil.nome}">
+    <button onclick="salvarPerfil()">Salvar</button>
+  `;
 };
 
 window.salvarPerfil = async ()=>{
   await updateDoc(doc(db,"admins",uid),{
-    nome:nomeNovo.value,
-    user:userNovo.value,
-    nomenclatura:nomenNovo.value
+    nome:nomeNovo.value
   });
   location.reload();
 };
 
 window.cadastrarADM = ()=>{
-  conteudo.innerHTML=`
-  <div class="card">
-  <h1>Novo ADM</h1>
-  <input id="nomeADM" placeholder="Nome">
-  <input id="emailADM" placeholder="Email">
-  <input id="userADM" placeholder="User">
-  <input id="nomenADM" placeholder="Nomenclatura">
-  <input id="senhaADM" placeholder="Senha">
-  <button onclick="salvarADM()">Criar</button>
-  </div>`;
-};
-
-window.salvarADM = async ()=>{
-  alert("Crie o usuário no Firebase Authentication primeiro.");
-  await addDoc(collection(db,"admins"),{
-    nome:nomeADM.value,
-    email:emailADM.value,
-    user:userADM.value,
-    nomenclatura:nomenADM.value,
-    role:"admin"
-  });
+  conteudo.innerHTML=`Novo ADM`;
 };
 </script>
 
