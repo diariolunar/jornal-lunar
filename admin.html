@@ -342,6 +342,16 @@ input, textarea, select {
   display: none;
 }
 
+.preview-perfil {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin-bottom: 15px;
+  background: #ede9fe;
+}
+
 @media (max-width: 1000px) {
   .metricas {
     grid-template-columns: repeat(2, 1fr);
@@ -412,6 +422,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/fireba
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
   updatePassword
@@ -421,6 +432,7 @@ import {
   getFirestore,
   doc,
   getDoc,
+  setDoc,
   collection,
   addDoc,
   getDocs,
@@ -437,16 +449,20 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
   authDomain: "diario-lunar-dee91.firebaseapp.com",
   projectId: "diario-lunar-dee91",
   storageBucket: "diario-lunar-dee91.firebasestorage.app",
   messagingSenderId: "817640390152",
   appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
-});
+};
+
+const app = initializeApp(firebaseConfig);
+const secondaryApp = initializeApp(firebaseConfig, "Secondary");
 
 const auth = getAuth(app);
+const secondaryAuth = getAuth(secondaryApp);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
@@ -485,6 +501,8 @@ onAuthStateChanged(auth, async (u) => {
 
   if (perfil.role === "superadmin") {
     document.getElementById("btnCadastrar").style.display = "block";
+  } else {
+    document.getElementById("btnCadastrar").style.display = "none";
   }
 
   dashboard();
@@ -812,7 +830,7 @@ window.editarPerfil = () => {
 
     <div class="card">
       <label>Foto de perfil</label>
-      <img id="previewFotoPerfil" class="perfil-foto" src="${perfil.fotoUrl || "logo-vertical.png"}" style="margin-bottom:15px;">
+      <img id="previewFotoPerfil" class="preview-perfil" src="${perfil.fotoUrl || "logo-vertical.png"}">
       <input id="novaFotoPerfil" type="file" accept="image/*">
 
       <label>Nome</label>
@@ -877,35 +895,110 @@ window.salvarPerfil = async () => {
 };
 
 window.cadastrarADM = () => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para cadastrar ADM.");
+    return;
+  }
+
   marcarAtivo("Cadastrar ADM");
 
   document.getElementById("conteudo").innerHTML = `
     <div class="topo-painel">
       <div>
         <h1>Cadastrar ADM</h1>
-        <p>Cadastre as informações de um novo administrador.</p>
+        <p>Crie um novo acesso administrativo para o Diário Lunar.</p>
       </div>
     </div>
 
     <div class="card">
-      <label>Nome</label>
-      <input id="nomeADM" placeholder="Nome do ADM">
+      <div class="form-grid">
+        <div>
+          <label>Imagem de perfil</label>
+          <img id="previewFotoADM" class="preview-perfil" src="logo-vertical.png">
+          <input id="fotoADM" type="file" accept="image/*">
 
-      <label>E-mail</label>
-      <input id="emailADM" placeholder="E-mail do ADM">
+          <label>Nome</label>
+          <input id="nomeADM" placeholder="Nome do ADM">
 
-      <label>User</label>
-      <input id="userADM" placeholder="User do ADM">
+          <label>E-mail</label>
+          <input id="emailADM" placeholder="E-mail do ADM">
+        </div>
 
-      <label>Nomenclatura no jornal</label>
-      <input id="nomenADM" placeholder="Ex: Editor, Colunista, Administrador">
+        <div>
+          <label>User</label>
+          <input id="userADM" placeholder="User do ADM">
 
-      <label>Senha de acesso</label>
-      <input id="senhaADM" type="password" placeholder="Senha">
+          <label>Nomenclatura no jornal</label>
+          <input id="nomenADM" placeholder="Ex: Editor, Colunista, Administrador">
 
-      <p style="color:#64748b;">Por enquanto, crie o usuário também no Firebase Authentication e depois cadastre o perfil aqui usando o UID.</p>
+          <label>Senha de acesso</label>
+          <input id="senhaADM" type="password" placeholder="Senha inicial do ADM">
+
+          <button class="btn" onclick="salvarADM()">Cadastrar ADM</button>
+        </div>
+      </div>
     </div>
   `;
+
+  const inputFoto = document.getElementById("fotoADM");
+  const preview = document.getElementById("previewFotoADM");
+
+  inputFoto.addEventListener("change", () => {
+    const file = inputFoto.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+    }
+  });
+};
+
+window.salvarADM = async () => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para cadastrar ADM.");
+    return;
+  }
+
+  const nome = nomeADM.value.trim();
+  const email = emailADM.value.trim();
+  const user = userADM.value.trim();
+  const nomenclatura = nomenADM.value.trim();
+  const senha = senhaADM.value.trim();
+  const arquivoFoto = document.getElementById("fotoADM")?.files[0];
+
+  if (!nome || !email || !user || !nomenclatura || !senha) {
+    alert("Preencha Nome, Email, User, Nomenclatura e Senha.");
+    return;
+  }
+
+  try {
+    const credencial = await createUserWithEmailAndPassword(secondaryAuth, email, senha);
+    const novoUid = credencial.user.uid;
+
+    let fotoUrl = "";
+
+    if (arquivoFoto) {
+      fotoUrl = await uploadArquivo(arquivoFoto, `perfis/${novoUid}`);
+    }
+
+    await setDoc(doc(db, "admins", novoUid), {
+      nome: nome,
+      email: email,
+      user: user,
+      nomenclatura: nomenclatura,
+      fotoUrl: fotoUrl,
+      role: "admin",
+      criadoEm: new Date(),
+      criadoPor: uid
+    });
+
+    await signOut(secondaryAuth);
+
+    alert("ADM cadastrado com sucesso!");
+
+    cadastrarADM();
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao cadastrar ADM. Verifique se o e-mail já não está cadastrado e se a senha tem pelo menos 6 caracteres.");
+  }
 };
 </script>
 
