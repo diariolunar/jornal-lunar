@@ -5,14 +5,17 @@
   <title>Diário Lunar</title>
 </head>
 
-<body style="font-family: Arial; max-width:800px; margin:auto;">
+<body style="font-family: Arial; max-width:1100px; margin:auto; padding:20px;">
 
-<h1>Diário Lunar</h1>
+<h1 style="color:#3B0764;">Diário Lunar</h1>
 
-<button onclick="loginGoogle()">Entrar com Google</button>
+<button onclick="loginGoogle()" style="margin-bottom:20px; padding:10px 20px; background:#6B21A8; color:white; border:none; border-radius:10px;">
+  Entrar
+</button>
 
-<h2>Matérias</h2>
-<div id="lista"></div>
+<h2 style="color:#3B0764;">Últimas matérias</h2>
+
+<div id="lista" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:20px;"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -47,14 +50,19 @@
       const post = doc.data();
 
       const div = document.createElement("div");
-      div.style.border = "1px solid #ccc";
-      div.style.padding = "10px";
-      div.style.marginBottom = "10px";
+      div.style.border = "1px solid #ddd";
+      div.style.borderRadius = "15px";
+      div.style.overflow = "hidden";
+      div.style.background = "white";
 
       div.innerHTML = `
-        <h3>${post.titulo}</h3>
-        <p>${post.conteudo}</p>
-        <small>Por ${post.autor}</small>
+        <img src="${post.imagem}" style="width:100%; height:180px; object-fit:cover;">
+        <div style="padding:15px;">
+          <small style="color:#6B21A8;">${post.categoria}</small>
+          <h3 style="margin:10px 0;">${post.titulo}</h3>
+          <p>${post.conteudo.substring(0, 120)}...</p>
+          <small>Por ${post.autor}</small>
+        </div>
       `;
 
       lista.appendChild(div);
