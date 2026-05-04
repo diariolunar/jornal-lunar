@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Painel ADM - Diário Lunar</title>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+
 <style>
 body {
   margin: 0;
@@ -335,11 +337,12 @@ input, textarea, select {
 
 .preview-img {
   width: 100%;
-  max-height: 210px;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 16px;
   margin-bottom: 14px;
   display: none;
+  background: #ede9fe;
 }
 
 .preview-perfil {
@@ -350,6 +353,47 @@ input, textarea, select {
   display: block;
   margin-bottom: 15px;
   background: #ede9fe;
+}
+
+.crop-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 16, 31, 0.85);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.crop-box {
+  background: white;
+  border-radius: 22px;
+  padding: 22px;
+  width: min(900px, 95vw);
+  max-height: 90vh;
+  box-sizing: border-box;
+}
+
+.crop-area {
+  width: 100%;
+  max-height: 60vh;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f1f5f9;
+}
+
+.crop-area img {
+  display: block;
+  max-width: 100%;
+}
+
+.crop-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 @media (max-width: 1000px) {
@@ -417,6 +461,21 @@ input, textarea, select {
   <main class="main" id="conteudo"></main>
 </div>
 
+<div id="cropModal" class="crop-modal">
+  <div class="crop-box">
+    <h2 id="cropTitulo">Recortar imagem</h2>
+    <div class="crop-area">
+      <img id="cropImagem">
+    </div>
+    <div class="crop-actions">
+      <button class="btn btn-dark" id="cancelarCrop">Cancelar</button>
+      <button class="btn" id="confirmarCrop">Usar imagem recortada</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 import {
@@ -437,9 +496,7 @@ import {
   addDoc,
   getDocs,
   deleteDoc,
-  updateDoc,
-  query,
-  orderBy
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import {
@@ -470,6 +527,14 @@ let uid = null;
 let perfil = null;
 let editId = null;
 let imagemAtual = "";
+
+let imagemMateriaBlob = null;
+let fotoPerfilBlob = null;
+let fotoADMBlob = null;
+
+let cropper = null;
+let cropResolver = null;
+let cropConfigAtual = null;
 
 window.logar = async () => {
   try {
@@ -535,13 +600,147 @@ function formatarData(data) {
   }
 }
 
-async function uploadArquivo(arquivo, pasta) {
-  const caminho = `${pasta}/${Date.now()}-${arquivo.name}`;
+async function uploadBlob(blob, pasta, nomeBase = "imagem") {
+  const caminho = `${pasta}/${Date.now()}-${nomeBase}.jpg`;
   const arquivoRef = ref(storage, caminho);
 
-  await uploadBytes(arquivoRef, arquivo);
+  await uploadBytes(arquivoRef, blob, {
+    contentType: "image/jpeg"
+  });
 
   return await getDownloadURL(arquivoRef);
+}
+
+function abrirCrop(arquivo, config) {
+  cropConfigAtual = config;
+
+  return new Promise((resolve, reject) => {
+    cropResolver = { resolve, reject };
+
+    const url = URL.createObjectURL(arquivo);
+    const cropModal = document.getElementById("cropModal");
+    const cropImagem = document.getElementById("cropImagem");
+    const cropTitulo = document.getElementById("cropTitulo");
+
+    cropTitulo.innerText = config.titulo || "Recortar imagem";
+    cropImagem.src = url;
+
+    cropModal.style.display = "flex";
+
+    cropImagem.onload = () => {
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      cropper = new Cropper(cropImagem, {
+        aspectRatio: config.aspectRatio,
+        viewMode: 1,
+        dragMode: "move",
+        autoCropArea: 1,
+        background: false,
+        responsive: true
+      });
+    };
+  });
+}
+
+document.getElementById("cancelarCrop").onclick = () => {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+
+  document.getElementById("cropModal").style.display = "none";
+
+  if (cropResolver) {
+    cropResolver.resolve(null);
+    cropResolver = null;
+  }
+};
+
+document.getElementById("confirmarCrop").onclick = () => {
+  if (!cropper || !cropConfigAtual) return;
+
+  const canvas = cropper.getCroppedCanvas({
+    width: cropConfigAtual.width,
+    height: cropConfigAtual.height,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: "high"
+  });
+
+  canvas.toBlob((blob) => {
+    cropper.destroy();
+    cropper = null;
+
+    document.getElementById("cropModal").style.display = "none";
+
+    if (cropResolver) {
+      cropResolver.resolve(blob);
+      cropResolver = null;
+    }
+  }, "image/jpeg", 0.9);
+};
+
+async function prepararImagemMateria(input, preview) {
+  const file = input.files[0];
+
+  if (!file) return;
+
+  const blob = await abrirCrop(file, {
+    titulo: "Recortar imagem da matéria",
+    aspectRatio: 16 / 9,
+    width: 1280,
+    height: 720
+  });
+
+  if (!blob) {
+    input.value = "";
+    return;
+  }
+
+  imagemMateriaBlob = blob;
+  preview.src = URL.createObjectURL(blob);
+  preview.style.display = "block";
+}
+
+async function prepararFotoPerfil(input, preview, destino) {
+  const file = input.files[0];
+
+  if (!file) return;
+
+  const blob = await abrirCrop(file, {
+    titulo: "Recortar foto de perfil",
+    aspectRatio: 1,
+    width: 500,
+    height: 500
+  });
+
+  if (!blob) {
+    input.value = "";
+    return;
+  }
+
+  if (destino === "perfil") {
+    fotoPerfilBlob = blob;
+  }
+
+  if (destino === "adm") {
+    fotoADMBlob = blob;
+  }
+
+  preview.src = URL.createObjectURL(blob);
+}
+
+function getDataNumber(post) {
+  if (post.data?.toDate) {
+    return post.data.toDate().getTime();
+  }
+
+  if (post.data) {
+    return new Date(post.data).getTime();
+  }
+
+  return 0;
 }
 
 window.sair = async () => {
@@ -557,40 +756,50 @@ window.sair = async () => {
 window.dashboard = async () => {
   marcarAtivo("Painel");
 
-  const postsSnap = await getDocs(query(collection(db, "posts"), orderBy("data", "desc")));
+  const postsSnap = await getDocs(collection(db, "posts"));
   const comentariosSnap = await getDocs(collection(db, "comentarios"));
 
-  let ultimas = "";
+  let listaPosts = [];
   let totalCurtidas = 0;
   let totalMes = 0;
 
   const mesAtual = new Date().getMonth();
   const anoAtual = new Date().getFullYear();
 
-  postsSnap.forEach((d, index) => {
+  postsSnap.forEach((d) => {
     const p = d.data();
 
     totalCurtidas += p.curtidas || 0;
 
-    if (p.data && p.data.toDate) {
-      const dataPost = p.data.toDate();
-      if (dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual) {
-        totalMes++;
-      }
+    const dataNum = getDataNumber(p);
+    const dataPost = dataNum ? new Date(dataNum) : null;
+
+    if (dataPost && dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual) {
+      totalMes++;
     }
 
-    if (index < 5) {
-      ultimas += `
-        <div class="materia-linha" style="grid-template-columns:90px 1fr 120px;">
-          <img src="${p.imagem || ""}">
-          <div>
-            <strong>${p.titulo || ""}</strong>
-            <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
-          </div>
-          <span class="badge">Publicado</span>
+    listaPosts.push({
+      id: d.id,
+      ...p,
+      dataNum
+    });
+  });
+
+  listaPosts.sort((a, b) => b.dataNum - a.dataNum);
+
+  let ultimas = "";
+
+  listaPosts.slice(0, 3).forEach((p) => {
+    ultimas += `
+      <div class="materia-linha" style="grid-template-columns:90px 1fr 120px;">
+        <img src="${p.imagem || ""}">
+        <div>
+          <strong>${p.titulo || ""}</strong>
+          <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
         </div>
-      `;
-    }
+        <span class="badge">Publicado</span>
+      </div>
+    `;
   });
 
   document.getElementById("conteudo").innerHTML = `
@@ -605,7 +814,7 @@ window.dashboard = async () => {
     <div class="metricas">
       <div class="metrica">
         <div class="icone">📰</div>
-        <h2>${postsSnap.size}</h2>
+        <h2>${listaPosts.length}</h2>
         <p>Matérias publicadas</p>
       </div>
 
@@ -647,6 +856,7 @@ window.novaMateria = (p = null, id = null) => {
 
   editId = id;
   imagemAtual = p?.imagem || "";
+  imagemMateriaBlob = null;
 
   document.getElementById("conteudo").innerHTML = `
     <div class="topo-painel">
@@ -678,7 +888,7 @@ window.novaMateria = (p = null, id = null) => {
           <img id="previewImagem" class="preview-img" src="${p?.imagem || ""}" style="${p?.imagem ? "display:block;" : ""}">
           <input id="arquivoImagem" type="file" accept="image/*">
 
-          <p style="color:#64748b; font-size:14px;">A imagem será enviada para o Firebase Storage.</p>
+          <p style="color:#64748b; font-size:14px;">A imagem será recortada em 16:9 antes do envio.</p>
         </div>
 
         <div>
@@ -709,20 +919,15 @@ window.novaMateria = (p = null, id = null) => {
   const previewImagem = document.getElementById("previewImagem");
 
   arquivoImagem.addEventListener("change", () => {
-    const file = arquivoImagem.files[0];
-    if (file) {
-      previewImagem.src = URL.createObjectURL(file);
-      previewImagem.style.display = "block";
-    }
+    prepararImagemMateria(arquivoImagem, previewImagem);
   });
 };
 
 window.salvar = async () => {
   let imagemFinal = imagemAtual;
-  const arquivo = document.getElementById("arquivoImagem")?.files[0];
 
-  if (arquivo) {
-    imagemFinal = await uploadArquivo(arquivo, "materias");
+  if (imagemMateriaBlob) {
+    imagemFinal = await uploadBlob(imagemMateriaBlob, "materias", "materia");
   }
 
   const dados = {
@@ -753,19 +958,32 @@ window.salvar = async () => {
 
   editId = null;
   imagemAtual = "";
+  imagemMateriaBlob = null;
   listar();
 };
 
 window.listar = async () => {
   marcarAtivo("Matérias");
 
-  const snap = await getDocs(query(collection(db, "posts"), orderBy("data", "desc")));
+  const snap = await getDocs(collection(db, "posts"));
 
-  let linhas = "";
+  let listaPosts = [];
 
   snap.forEach(d => {
     const p = d.data();
 
+    listaPosts.push({
+      id: d.id,
+      ...p,
+      dataNum: getDataNumber(p)
+    });
+  });
+
+  listaPosts.sort((a, b) => b.dataNum - a.dataNum);
+
+  let linhas = "";
+
+  listaPosts.forEach(p => {
     linhas += `
       <div class="materia-linha">
         <img src="${p.imagem || ""}">
@@ -776,8 +994,8 @@ window.listar = async () => {
         <span class="badge">${p.categoria || "Matéria"}</span>
         <span>${formatarData(p.data)}</span>
         <div class="acoes">
-          <button class="btn" onclick="editar('${d.id}')">Editar</button>
-          <button class="btn btn-red" onclick="excluir('${d.id}')">Excluir</button>
+          <button class="btn" onclick="editar('${p.id}')">Editar</button>
+          <button class="btn btn-red" onclick="excluir('${p.id}')">Excluir</button>
         </div>
       </div>
     `;
@@ -819,6 +1037,7 @@ window.excluir = async (id) => {
 
 window.editarPerfil = () => {
   marcarAtivo("Editar Perfil");
+  fotoPerfilBlob = null;
 
   document.getElementById("conteudo").innerHTML = `
     <div class="topo-painel">
@@ -853,19 +1072,15 @@ window.editarPerfil = () => {
   const preview = document.getElementById("previewFotoPerfil");
 
   inputFoto.addEventListener("change", () => {
-    const file = inputFoto.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-    }
+    prepararFotoPerfil(inputFoto, preview, "perfil");
   });
 };
 
 window.salvarPerfil = async () => {
   let fotoUrl = perfil.fotoUrl || "";
-  const arquivoFoto = document.getElementById("novaFotoPerfil")?.files[0];
 
-  if (arquivoFoto) {
-    fotoUrl = await uploadArquivo(arquivoFoto, "perfis");
+  if (fotoPerfilBlob) {
+    fotoUrl = await uploadBlob(fotoPerfilBlob, `perfis/${uid}`, "perfil");
   }
 
   await updateDoc(doc(db, "admins", uid), {
@@ -890,6 +1105,8 @@ window.salvarPerfil = async () => {
 
   const snap = await getDoc(doc(db, "admins", uid));
   perfil = snap.data();
+
+  fotoPerfilBlob = null;
   atualizarSidebar();
   editarPerfil();
 };
@@ -901,6 +1118,7 @@ window.cadastrarADM = () => {
   }
 
   marcarAtivo("Cadastrar ADM");
+  fotoADMBlob = null;
 
   document.getElementById("conteudo").innerHTML = `
     <div class="topo-painel">
@@ -944,10 +1162,7 @@ window.cadastrarADM = () => {
   const preview = document.getElementById("previewFotoADM");
 
   inputFoto.addEventListener("change", () => {
-    const file = inputFoto.files[0];
-    if (file) {
-      preview.src = URL.createObjectURL(file);
-    }
+    prepararFotoPerfil(inputFoto, preview, "adm");
   });
 };
 
@@ -962,7 +1177,6 @@ window.salvarADM = async () => {
   const user = userADM.value.trim();
   const nomenclatura = nomenADM.value.trim();
   const senha = senhaADM.value.trim();
-  const arquivoFoto = document.getElementById("fotoADM")?.files[0];
 
   if (!nome || !email || !user || !nomenclatura || !senha) {
     alert("Preencha Nome, Email, User, Nomenclatura e Senha.");
@@ -975,8 +1189,8 @@ window.salvarADM = async () => {
 
     let fotoUrl = "";
 
-    if (arquivoFoto) {
-      fotoUrl = await uploadArquivo(arquivoFoto, `perfis/${novoUid}`);
+    if (fotoADMBlob) {
+      fotoUrl = await uploadBlob(fotoADMBlob, `perfis/${novoUid}`, "perfil-adm");
     }
 
     await setDoc(doc(db, "admins", novoUid), {
@@ -994,6 +1208,7 @@ window.salvarADM = async () => {
 
     alert("ADM cadastrado com sucesso!");
 
+    fotoADMBlob = null;
     cadastrarADM();
   } catch (error) {
     console.error(error);
