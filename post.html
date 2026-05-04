@@ -3,14 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <title>Matéria - Diário Lunar</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #F8F6F1;
+  color: #07101F;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+}
+
+.logo img {
+  height: 40px;
+}
+
+.menu a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #07101F;
+}
+
+.btn {
+  background: #6D28D9;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+.post-container {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+.category {
+  color: #6D28D9;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+h1 {
+  font-size: 44px;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.meta {
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.cover {
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-bottom: 35px;
+}
+
+.content {
+  background: white;
+  padding: 35px;
+  border-radius: 22px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+  font-size: 18px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.footer {
+  background: #07101F;
+  color: white;
+  padding: 40px;
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap: 30px;
+}
+</style>
 </head>
 
-<body style="font-family: Arial; max-width:800px; margin:auto; padding:30px; background:#F8F6F1;">
+<body>
 
-<h1 id="titulo"></h1>
-<p id="categoria" style="color:#6D28D9;"></p>
-<img id="imagem" style="width:100%; border-radius:15px;">
-<p id="conteudo"></p>
+<div class="navbar">
+  <div class="logo">
+    <img src="logo-diario-lunar.png">
+    <span>Diário Lunar</span>
+  </div>
+
+  <div class="menu">
+    <a href="/">Início</a>
+    <a href="#">Matérias</a>
+    <a href="#">Resenhas</a>
+    <a href="#">Entrevistas</a>
+    <a href="#">Sobre</a>
+  </div>
+
+  <a href="/admin.html" class="btn">Área ADM</a>
+</div>
+
+<main class="post-container">
+  <a href="/" style="color:#6D28D9; text-decoration:none;">← Voltar para o início</a>
+
+  <p id="categoria" class="category"></p>
+  <h1 id="titulo"></h1>
+  <p id="meta" class="meta"></p>
+
+  <img id="imagem" class="cover">
+
+  <article id="conteudo" class="content"></article>
+</main>
+
+<div class="footer">
+  <div>
+    <h2>🌙 Diário Lunar</h2>
+    <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
+    <p>Instagram · Site Lunar · E-mail</p>
+  </div>
+
+  <div>
+    <h3>Navegação</h3>
+    <p>Início</p>
+    <p>Matérias</p>
+    <p>Resenhas</p>
+    <p>Entrevistas</p>
+    <p>Sobre</p>
+  </div>
+
+  <div>
+    <h3>Categorias</h3>
+    <p>Literatura</p>
+    <p>Comunidade</p>
+    <p>Autores</p>
+    <p>Eventos</p>
+    <p>Destaques Lunar</p>
+  </div>
+
+  <div>
+    <h3>Institucional</h3>
+    <p>Sobre o Diário Lunar</p>
+    <p>Nossa missão</p>
+    <p>Equipe</p>
+    <p>Contato</p>
+    <p>Política de Privacidade</p>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
@@ -39,8 +192,10 @@ async function carregarPost() {
     document.getElementById("categoria").innerText = post.categoria;
     document.getElementById("imagem").src = post.imagem;
     document.getElementById("conteudo").innerText = post.conteudo;
+
+    document.getElementById("meta").innerText = `Por ${post.autor}`;
   } else {
-    document.body.innerHTML = "Matéria não encontrada";
+    document.querySelector(".post-container").innerHTML = "<h1>Matéria não encontrada</h1>";
   }
 }
 
