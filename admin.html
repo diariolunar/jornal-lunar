@@ -34,16 +34,6 @@ body {
   margin-bottom: 30px;
 }
 
-.login-left h2 {
-  margin-top: 20px;
-}
-
-.login-left p {
-  color: #d1d5db;
-  max-width: 320px;
-  line-height: 1.6;
-}
-
 .login-right {
   flex: 1;
   background: #F8F6F1;
@@ -125,15 +115,19 @@ body {
 .perfil {
   text-align: center;
   margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .perfil-foto {
-  width: 86px;
-  height: 86px;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
   object-fit: cover;
   background: #6D28D9;
   margin-bottom: 12px;
+  display: block;
 }
 
 .perfil h3 {
@@ -184,10 +178,6 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 28px;
-}
-
-.topo-painel h1 {
-  margin-bottom: 8px;
 }
 
 .data-box {
@@ -250,38 +240,30 @@ body {
 
 .materia-linha {
   display: grid;
-  grid-template-columns: 90px 1fr 120px 120px 140px;
+  grid-template-columns: 95px 1fr 150px 110px 170px;
   gap: 18px;
   align-items: center;
-  padding: 16px 0;
+  padding: 18px 0;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .materia-linha img {
-  width: 90px;
-  height: 60px;
+  width: 95px;
+  height: 65px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 14px;
   background: #e5e7eb;
 }
 
 .badge {
   background: #ede9fe;
   color: #6D28D9;
-  padding: 7px 12px;
+  padding: 8px 13px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   display: inline-block;
-}
-
-.status {
-  background: #dcfce7;
-  color: #166534;
-  padding: 7px 12px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: bold;
+  text-align: center;
 }
 
 .btn {
@@ -302,6 +284,12 @@ body {
   background: #ef4444;
 }
 
+.acoes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
@@ -318,9 +306,40 @@ input, textarea, select {
   font-family: Arial, sans-serif;
 }
 
-textarea {
-  min-height: 320px;
-  resize: vertical;
+.editor-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.editor-toolbar button {
+  padding: 9px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #ede9fe;
+  color: #6D28D9;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.editor {
+  min-height: 360px;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  padding: 18px;
+  background: white;
+  line-height: 1.7;
+  outline: none;
+}
+
+.preview-img {
+  width: 100%;
+  max-height: 210px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  display: none;
 }
 
 @media (max-width: 1000px) {
@@ -353,7 +372,7 @@ textarea {
       <h1>Entrar na Área ADM</h1>
       <p>Digite suas credenciais para acessar.</p>
 
-      <label>Usuário ou e-mail</label>
+      <label>E-mail</label>
       <input id="email" placeholder="Digite seu e-mail">
 
       <label>Senha</label>
@@ -371,7 +390,7 @@ textarea {
     <img src="logo-diario-lunar2.png" class="sidebar-logo">
 
     <div class="perfil">
-      <div class="perfil-foto"></div>
+      <img id="fotoPerfilSidebar" class="perfil-foto" src="logo-vertical.png">
       <h3 id="nome"></h3>
       <p id="user"></p>
       <span id="nomenclatura" class="nomenclatura"></span>
@@ -394,7 +413,8 @@ import {
   getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut
+  signOut,
+  updatePassword
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 import {
@@ -410,6 +430,13 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
+
 const app = initializeApp({
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
   authDomain: "diario-lunar-dee91.firebaseapp.com",
@@ -421,10 +448,12 @@ const app = initializeApp({
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let uid = null;
 let perfil = null;
 let editId = null;
+let imagemAtual = "";
 
 window.logar = async () => {
   try {
@@ -452,9 +481,7 @@ onAuthStateChanged(auth, async (u) => {
   document.getElementById("login").style.display = "none";
   document.getElementById("layout").style.display = "flex";
 
-  document.getElementById("nome").innerText = perfil.nome || "Administrador";
-  document.getElementById("user").innerText = "@" + (perfil.user || "admin");
-  document.getElementById("nomenclatura").innerText = perfil.nomenclatura || "Administrador";
+  atualizarSidebar();
 
   if (perfil.role === "superadmin") {
     document.getElementById("btnCadastrar").style.display = "block";
@@ -462,6 +489,13 @@ onAuthStateChanged(auth, async (u) => {
 
   dashboard();
 });
+
+function atualizarSidebar() {
+  document.getElementById("nome").innerText = perfil.nome || "Administrador";
+  document.getElementById("user").innerText = "@" + (perfil.user || "admin");
+  document.getElementById("nomenclatura").innerText = perfil.nomenclatura || "Administrador";
+  document.getElementById("fotoPerfilSidebar").src = perfil.fotoUrl || "logo-vertical.png";
+}
 
 function marcarAtivo(texto) {
   document.querySelectorAll(".menu-btn").forEach(btn => {
@@ -481,6 +515,15 @@ function formatarData(data) {
   } catch {
     return "Sem data";
   }
+}
+
+async function uploadArquivo(arquivo, pasta) {
+  const caminho = `${pasta}/${Date.now()}-${arquivo.name}`;
+  const arquivoRef = ref(storage, caminho);
+
+  await uploadBytes(arquivoRef, arquivo);
+
+  return await getDownloadURL(arquivoRef);
 }
 
 window.sair = async () => {
@@ -526,7 +569,7 @@ window.dashboard = async () => {
             <strong>${p.titulo || ""}</strong>
             <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
           </div>
-          <span class="status">Publicado</span>
+          <span class="badge">Publicado</span>
         </div>
       `;
     }
@@ -577,9 +620,15 @@ window.dashboard = async () => {
   `;
 };
 
+window.formatarTexto = function(comando) {
+  document.execCommand(comando, false, null);
+};
+
 window.novaMateria = (p = null, id = null) => {
   marcarAtivo("Nova Matéria");
+
   editId = id;
+  imagemAtual = p?.imagem || "";
 
   document.getElementById("conteudo").innerHTML = `
     <div class="topo-painel">
@@ -607,31 +656,62 @@ window.novaMateria = (p = null, id = null) => {
             <option value="Destaques Lunar" ${p?.categoria === "Destaques Lunar" ? "selected" : ""}>Destaques Lunar</option>
           </select>
 
-          <label>Resumo</label>
-          <textarea id="resumo" style="min-height:120px;" placeholder="Digite um resumo curto da matéria">${p?.resumo || ""}</textarea>
+          <label>Imagem da matéria</label>
+          <img id="previewImagem" class="preview-img" src="${p?.imagem || ""}" style="${p?.imagem ? "display:block;" : ""}">
+          <input id="arquivoImagem" type="file" accept="image/*">
 
-          <label>Imagem de destaque</label>
-          <input id="imagem" placeholder="Cole o link da imagem" value="${p?.imagem || ""}">
+          <p style="color:#64748b; font-size:14px;">A imagem será enviada para o Firebase Storage.</p>
         </div>
 
         <div>
-          <label>Conteúdo da matéria</label>
-          <textarea id="conteudoTxt" placeholder="Escreva o conteúdo da matéria aqui...">${p?.conteudo || ""}</textarea>
+          <label>Texto da matéria</label>
+
+          <div class="editor-toolbar">
+            <button type="button" onclick="formatarTexto('bold')">B</button>
+            <button type="button" onclick="formatarTexto('italic')">I</button>
+            <button type="button" onclick="formatarTexto('underline')">U</button>
+            <button type="button" onclick="formatarTexto('justifyLeft')">⬅</button>
+            <button type="button" onclick="formatarTexto('justifyCenter')">⬌</button>
+            <button type="button" onclick="formatarTexto('justifyRight')">➡</button>
+            <button type="button" onclick="formatarTexto('justifyFull')">☰</button>
+          </div>
+
+          <div id="editorMateria" class="editor" contenteditable="true">${p?.conteudo || ""}</div>
         </div>
       </div>
 
-      <button class="btn" onclick="salvar()">${p ? "Salvar alterações" : "Publicar"}</button>
+      <div style="margin-top:20px; display:flex; gap:10px;">
+        <button class="btn" onclick="salvar()">${p ? "Salvar alterações" : "Publicar"}</button>
+        ${p ? `<button class="btn btn-dark" onclick="listar()">Cancelar edição</button>` : ""}
+      </div>
     </div>
   `;
+
+  const arquivoImagem = document.getElementById("arquivoImagem");
+  const previewImagem = document.getElementById("previewImagem");
+
+  arquivoImagem.addEventListener("change", () => {
+    const file = arquivoImagem.files[0];
+    if (file) {
+      previewImagem.src = URL.createObjectURL(file);
+      previewImagem.style.display = "block";
+    }
+  });
 };
 
 window.salvar = async () => {
+  let imagemFinal = imagemAtual;
+  const arquivo = document.getElementById("arquivoImagem")?.files[0];
+
+  if (arquivo) {
+    imagemFinal = await uploadArquivo(arquivo, "materias");
+  }
+
   const dados = {
     titulo: titulo.value.trim(),
-    imagem: imagem.value.trim(),
+    imagem: imagemFinal,
     categoria: categoria.value,
-    resumo: resumo.value.trim(),
-    conteudo: conteudoTxt.value.trim(),
+    conteudo: editorMateria.innerHTML.trim(),
     autor: perfil.user,
     atualizadoEm: new Date()
   };
@@ -654,6 +734,7 @@ window.salvar = async () => {
   }
 
   editId = null;
+  imagemAtual = "";
   listar();
 };
 
@@ -672,11 +753,11 @@ window.listar = async () => {
         <img src="${p.imagem || ""}">
         <div>
           <strong>${p.titulo || ""}</strong>
-          <p style="margin:6px 0 0; color:#64748b;">${(p.resumo || p.conteudo || "").substring(0, 80)}...</p>
+          <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
         </div>
         <span class="badge">${p.categoria || "Matéria"}</span>
         <span>${formatarData(p.data)}</span>
-        <div>
+        <div class="acoes">
           <button class="btn" onclick="editar('${d.id}')">Editar</button>
           <button class="btn btn-red" onclick="excluir('${d.id}')">Excluir</button>
         </div>
@@ -730,6 +811,10 @@ window.editarPerfil = () => {
     </div>
 
     <div class="card">
+      <label>Foto de perfil</label>
+      <img id="previewFotoPerfil" class="perfil-foto" src="${perfil.fotoUrl || "logo-vertical.png"}" style="margin-bottom:15px;">
+      <input id="novaFotoPerfil" type="file" accept="image/*">
+
       <label>Nome</label>
       <input id="nomeNovo" value="${perfil.nome || ""}">
 
@@ -739,20 +824,56 @@ window.editarPerfil = () => {
       <label>Nomenclatura no jornal</label>
       <input id="nomenNovo" value="${perfil.nomenclatura || ""}">
 
+      <label>Nova senha</label>
+      <input id="senhaNova" type="password" placeholder="Digite uma nova senha se quiser alterar">
+
       <button class="btn" onclick="salvarPerfil()">Salvar alterações</button>
     </div>
   `;
+
+  const inputFoto = document.getElementById("novaFotoPerfil");
+  const preview = document.getElementById("previewFotoPerfil");
+
+  inputFoto.addEventListener("change", () => {
+    const file = inputFoto.files[0];
+    if (file) {
+      preview.src = URL.createObjectURL(file);
+    }
+  });
 };
 
 window.salvarPerfil = async () => {
+  let fotoUrl = perfil.fotoUrl || "";
+  const arquivoFoto = document.getElementById("novaFotoPerfil")?.files[0];
+
+  if (arquivoFoto) {
+    fotoUrl = await uploadArquivo(arquivoFoto, "perfis");
+  }
+
   await updateDoc(doc(db, "admins", uid), {
     nome: nomeNovo.value.trim(),
     user: userNovo.value.trim(),
-    nomenclatura: nomenNovo.value.trim()
+    nomenclatura: nomenNovo.value.trim(),
+    fotoUrl: fotoUrl
   });
 
-  alert("Perfil atualizado.");
-  location.reload();
+  const novaSenha = senhaNova.value.trim();
+
+  if (novaSenha) {
+    try {
+      await updatePassword(auth.currentUser, novaSenha);
+      alert("Perfil e senha atualizados.");
+    } catch (error) {
+      alert("Perfil atualizado, mas a senha não foi alterada. Faça login novamente e tente trocar a senha.");
+    }
+  } else {
+    alert("Perfil atualizado.");
+  }
+
+  const snap = await getDoc(doc(db, "admins", uid));
+  perfil = snap.data();
+  atualizarSidebar();
+  editarPerfil();
 };
 
 window.cadastrarADM = () => {
