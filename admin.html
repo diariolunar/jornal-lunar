@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Painel ADM - Diário Lunar</title>
+</head>
+
+<body style="font-family: Arial; max-width:600px; margin:auto;">
+
+<h1>Painel ADM</h1>
+
+<input id="titulo" placeholder="Título da matéria" style="width:100%; margin-bottom:10px;">
+<textarea id="conteudo" placeholder="Conteúdo" style="width:100%; height:150px;"></textarea>
+<br><br>
+<button onclick="publicar()">Publicar</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
+    authDomain: "diario-lunar-dee91.firebaseapp.com",
+    projectId: "diario-lunar-dee91",
+    storageBucket: "diario-lunar-dee91.firebasestorage.app",
+    messagingSenderId: "817640390152",
+    appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let userAtual = null;
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userAtual = user;
+    } else {
+      alert("Você precisa estar logado");
+      window.location.href = "/";
+    }
+  });
+
+  window.publicar = async function () {
+    const titulo = document.getElementById("titulo").value;
+    const conteudo = document.getElementById("conteudo").value;
+
+    if (!titulo || !conteudo) {
+      alert("Preencha tudo");
+      return;
+    }
+
+    await addDoc(collection(db, "posts"), {
+      titulo,
+      conteudo,
+      autor: userAtual.email,
+      data: new Date()
+    });
+
+    alert("Matéria publicada!");
+  };
+</script>
+
+</body>
+</html>
