@@ -95,10 +95,16 @@ body {
 
 /* FOOTER */
 .footer {
-  background: #07101F;
+  background: url("footer.png") center/cover no-repeat;
   color: white;
   padding: 40px;
-  margin-top: 40px;
+  margin-top: 60px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  gap: 30px;
+
+  position: relative;
 }
 </style>
 
