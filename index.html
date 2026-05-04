@@ -23,8 +23,14 @@ body {
   height: 70px;
 }
 
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .menu a {
-  margin: 0 14px;
+  margin: 6px 10px;
   text-decoration: none;
   color: #07101F;
   font-weight: 500;
@@ -119,7 +125,7 @@ body {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
@@ -138,7 +144,7 @@ body {
 
 .card img {
   width: 100%;
-  height: 210px;
+  height: 190px;
   object-fit: cover;
   display: block;
 }
@@ -154,7 +160,7 @@ body {
 }
 
 .card-content h3 {
-  font-size: 22px;
+  font-size: 20px;
   margin: 12px 0;
 }
 
@@ -170,43 +176,9 @@ body {
   text-decoration: none;
 }
 
-.categorias {
-  padding: 10px 50px 60px;
-}
-
-.categoria-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 18px;
-}
-
-.categoria {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
+.ver-mais {
   text-align: center;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.newsletter {
-  margin: 0 50px 60px;
-  background: #07101F;
-  color: white;
-  padding: 30px;
-  border-radius: 20px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: center;
-}
-
-.newsletter input {
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  width: 300px;
+  margin-top: 35px;
 }
 
 .footer {
@@ -215,7 +187,7 @@ body {
   padding: 40px;
   margin-top: 60px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+  grid-template-columns: 2fr 1fr;
   gap: 30px;
   position: relative;
 }
@@ -231,16 +203,23 @@ body {
   position: relative;
 }
 
+.footer a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin: 8px 0;
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 850px) {
   .navbar {
     flex-direction: column;
     gap: 20px;
-  }
-
-  .menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
   }
 
   .hero {
@@ -252,21 +231,17 @@ body {
     font-size: 38px;
   }
 
-  .section,
-  .categorias {
+  .section {
     padding-left: 25px;
     padding-right: 25px;
   }
 
-  .newsletter {
-    margin-left: 25px;
-    margin-right: 25px;
-    flex-direction: column;
-    align-items: flex-start;
+  .grid {
+    grid-template-columns: 1fr;
   }
 
-  .newsletter input {
-    width: 100%;
+  .footer {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -281,11 +256,15 @@ body {
 
   <div class="menu">
     <a href="/">Início</a>
-    <a href="/categoria.html?tipo=Literatura">Matérias</a>
+    <a href="/materias.html">Todas as Matérias</a>
+    <a href="/categoria.html?tipo=Literatura">Literatura</a>
+    <a href="/categoria.html?tipo=Comunidade">Comunidade</a>
+    <a href="/categoria.html?tipo=Autores">Autores</a>
+    <a href="/categoria.html?tipo=Eventos">Eventos</a>
     <a href="/categoria.html?tipo=Resenhas">Resenhas</a>
     <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
-    <a href="/categoria.html?tipo=Comunidade">Comunidade</a>
-    <a href="#">Sobre</a>
+    <a href="/categoria.html?tipo=Destaques Lunar">Destaques Lunar</a>
+    <a href="/sobre.html">Sobre</a>
   </div>
 
   <a href="/admin.html" class="btn">Área ADM</a>
@@ -297,9 +276,9 @@ body {
 
     <h1>As histórias que iluminam a comunidade literária</h1>
 
-    <p>Notícias, matérias, entrevistas e destaques do universo Lunar.</p>
+    <p>Notícias, dicas, matérias, entrevistas e destaques do universo Lunar.</p>
 
-    <a class="btn" href="#materias">Explorar matérias</a>
+    <a class="btn" href="/materias.html">Ver todas as matérias</a>
   </div>
 
   <div class="hero-card" id="heroCard">
@@ -313,68 +292,29 @@ body {
 </section>
 
 <section class="section" id="materias">
-  <h2 class="section-title"><span>✦</span> Em destaque</h2>
+  <h2 class="section-title"><span>✦</span> Últimas matérias</h2>
 
   <div class="grid" id="posts"></div>
-</section>
 
-<section class="categorias">
-  <h2 class="section-title"><span>✦</span> Navegue por categorias</h2>
-
-  <div class="categoria-grid">
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Literatura'">📚 Literatura</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Comunidade'">👥 Comunidade</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Autores'">✒️ Autores</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Eventos'">📅 Eventos</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Resenhas'">⭐ Resenhas</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Destaques Lunar'">🌙 Destaques Lunar</div>
+  <div class="ver-mais">
+    <a class="btn" href="/materias.html">Ver todas as matérias</a>
   </div>
 </section>
-
-<div class="newsletter">
-  <div>
-    <h2>Receba novidades lunares</h2>
-    <p>Fique por dentro das novidades, lançamentos e conteúdos exclusivos.</p>
-  </div>
-
-  <div>
-    <input placeholder="Seu melhor e-mail">
-    <a href="#" class="btn">Assinar</a>
-  </div>
-</div>
 
 <div class="footer">
   <div>
     <img src="logo-diario-lunar2.png" style="height:60px; margin-right:10px;">
     <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
-    <p>Instagram · Site Lunar · E-mail</p>
-  </div>
-
-  <div>
-    <h3>Navegação</h3>
-    <p>Início</p>
-    <p>Matérias</p>
-    <p>Resenhas</p>
-    <p>Entrevistas</p>
-    <p>Sobre</p>
-  </div>
-
-  <div>
-    <h3>Categorias</h3>
-    <p>Literatura</p>
-    <p>Comunidade</p>
-    <p>Autores</p>
-    <p>Eventos</p>
-    <p>Destaques Lunar</p>
+    <a href="https://www.instagram.com/_projeto.lunar?igsh=YWd2enkzMjJmeGxv" target="_blank">Instagram</a>
+    <a href="https://projetolunar.com.br" target="_blank">Site Lunar</a>
+    <a href="mailto:diariolunar47@gmail.com">E-mail</a>
   </div>
 
   <div>
     <h3>Institucional</h3>
-    <p>Sobre o Diário Lunar</p>
-    <p>Nossa missão</p>
-    <p>Equipe</p>
-    <p>Contato</p>
-    <p>Política de Privacidade</p>
+    <a href="/sobre.html">Sobre o Diário Lunar</a>
+    <a href="/equipe.html">Equipe</a>
+    <a href="/privacidade.html">Política de Privacidade</a>
   </div>
 </div>
 
@@ -383,9 +323,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/fireba
 import {
   getFirestore,
   collection,
-  getDocs,
-  query,
-  orderBy
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -415,51 +353,68 @@ function limparTexto(html) {
   area.innerHTML = texto;
   texto = area.value;
 
-  texto = texto
-    .replace(/\n\s*\n/g, "\n")
-    .replace(/[ \t]+/g, " ")
-    .trim();
-
-  return texto;
+  return texto.replace(/\n\s*\n/g, "\n").replace(/[ \t]+/g, " ").trim();
 }
 
 function cortarTexto(texto, limite) {
   if (!texto) return "";
-
   if (texto.length <= limite) return texto;
-
   return texto.substring(0, limite).trim() + "...";
 }
 
-async function carregarPosts() {
-  const q = query(collection(db, "posts"), orderBy("data", "desc"));
-  const snapshot = await getDocs(q);
+function getDataNumber(post) {
+  if (post.data?.toDate) return post.data.toDate().getTime();
+  if (post.data) return new Date(post.data).getTime();
+  return 0;
+}
 
+async function carregarPosts() {
+  const snapshot = await getDocs(collection(db, "posts"));
   const container = document.getElementById("posts");
+
   container.innerHTML = "";
 
-  let contador = 0;
+  let listaPosts = [];
 
   snapshot.forEach((docItem) => {
     const post = docItem.data();
+
+    listaPosts.push({
+      id: docItem.id,
+      ...post,
+      dataNum: getDataNumber(post)
+    });
+  });
+
+  listaPosts.sort((a, b) => b.dataNum - a.dataNum);
+
+  if (listaPosts.length === 0) {
+    document.getElementById("heroTitulo").innerText = "Nenhuma matéria publicada ainda";
+    document.getElementById("heroResumo").innerText = "Publique a primeira matéria pelo painel ADM.";
+    container.innerHTML = "<p>Nenhuma matéria publicada ainda.</p>";
+    return;
+  }
+
+  const destaque = listaPosts[0];
+  const textoDestaque = limparTexto(destaque.conteudo);
+
+  document.getElementById("heroImagem").src = destaque.imagem || "";
+  document.getElementById("heroCategoria").innerText = destaque.categoria || "Matéria";
+  document.getElementById("heroTitulo").innerText = destaque.titulo || "";
+  document.getElementById("heroResumo").innerText = cortarTexto(textoDestaque, 160);
+
+  document.getElementById("heroCard").onclick = () => {
+    window.location.href = `/post.html?id=${destaque.id}`;
+  };
+
+  listaPosts.slice(1, 9).forEach((post) => {
     const textoLimpo = limparTexto(post.conteudo);
-
-    if (contador === 0) {
-      document.getElementById("heroImagem").src = post.imagem || "";
-      document.getElementById("heroCategoria").innerText = post.categoria || "Matéria";
-      document.getElementById("heroTitulo").innerText = post.titulo || "";
-      document.getElementById("heroResumo").innerText = cortarTexto(textoLimpo, 160);
-
-      document.getElementById("heroCard").onclick = () => {
-        window.location.href = `/post.html?id=${docItem.id}`;
-      };
-    }
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.onclick = () => {
-      window.location.href = `/post.html?id=${docItem.id}`;
+      window.location.href = `/post.html?id=${post.id}`;
     };
 
     div.innerHTML = `
@@ -467,21 +422,13 @@ async function carregarPosts() {
       <div class="card-content">
         <small>${post.categoria || "Matéria"}</small>
         <h3>${post.titulo || ""}</h3>
-        <p>${cortarTexto(textoLimpo, 120)}</p>
-        <a href="/post.html?id=${docItem.id}">Ler matéria →</a>
+        <p>${cortarTexto(textoLimpo, 100)}</p>
+        <a href="/post.html?id=${post.id}">Ler matéria →</a>
       </div>
     `;
 
     container.appendChild(div);
-
-    contador++;
   });
-
-  if (contador === 0) {
-    document.getElementById("heroTitulo").innerText = "Nenhuma matéria publicada ainda";
-    document.getElementById("heroResumo").innerText = "Publique a primeira matéria pelo painel ADM.";
-    container.innerHTML = "<p>Nenhuma matéria publicada ainda.</p>";
-  }
 }
 
 carregarPosts();
