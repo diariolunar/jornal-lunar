@@ -411,7 +411,9 @@ async function carregarPosts() {
       document.getElementById("heroImagem").src = post.imagem || "";
       document.getElementById("heroCategoria").innerText = post.categoria || "Matéria";
       document.getElementById("heroTitulo").innerText = post.titulo || "";
-      document.getElementById("heroResumo").innerText = (post.conteudo || "").substring(0, 160) + "...";
+      const textoLimpo = (post.conteudo || "").replace(/<[^>]*>/g, "");
+
+      document.getElementById("heroResumo").innerText = textoLimpo.substring(0, 160) + "...";
 
       document.getElementById("heroCard").onclick = () => {
         window.location.href = `/post.html?id=${docItem.id}`;
@@ -430,7 +432,7 @@ async function carregarPosts() {
       <div class="card-content">
         <small>${post.categoria || "Matéria"}</small>
         <h3>${post.titulo || ""}</h3>
-        <p>${(post.conteudo || "").substring(0, 120)}...</p>
+        <p>${(post.conteudo || "").replace(/<[^>]*>/g, "").substring(0, 120)}...</p>
         <a href="/post.html?id=${docItem.id}">Ler matéria →</a>
       </div>
     `;
