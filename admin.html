@@ -262,6 +262,23 @@ body {
   background: #e5e7eb;
 }
 
+.adm-linha {
+  display: grid;
+  grid-template-columns: 70px 1fr 140px 120px 220px;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.adm-linha img {
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 50%;
+  background: #ede9fe;
+}
+
 .badge {
   background: #ede9fe;
   color: #6D28D9;
@@ -271,6 +288,16 @@ body {
   font-weight: bold;
   display: inline-block;
   text-align: center;
+}
+
+.badge-ok {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-off {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .btn {
@@ -289,6 +316,10 @@ body {
 
 .btn-red {
   background: #ef4444;
+}
+
+.btn-green {
+  background: #16a34a;
 }
 
 .acoes {
@@ -414,7 +445,8 @@ input, textarea, select {
     grid-template-columns: 1fr;
   }
 
-  .materia-linha {
+  .materia-linha,
+  .adm-linha {
     grid-template-columns: 80px 1fr;
   }
 }
@@ -541,14 +573,18 @@ input, textarea, select {
     padding: 20px;
   }
 
-  .materia-linha {
+  .materia-linha,
+  .adm-linha {
     grid-template-columns: 80px 1fr;
     gap: 12px;
   }
 
   .materia-linha .badge,
   .materia-linha span,
-  .materia-linha .acoes {
+  .materia-linha .acoes,
+  .adm-linha .badge,
+  .adm-linha span,
+  .adm-linha .acoes {
     grid-column: 1 / -1;
   }
 
@@ -614,6 +650,7 @@ input, textarea, select {
     <button class="menu-btn" onclick="listar(); fecharMenu()">Matérias Publicadas</button>
     <button class="menu-btn" onclick="editarPerfil(); fecharMenu()">Editar Perfil</button>
     <button class="menu-btn" id="btnCadastrar" onclick="cadastrarADM(); fecharMenu()" style="display:none;">Cadastrar ADM</button>
+    <button class="menu-btn" id="btnGerenciar" onclick="gerenciarADMs(); fecharMenu()" style="display:none;">Gerenciar ADMs</button>
     <button class="menu-btn" onclick="sair(); fecharMenu()">Sair</button>
   </aside>
 
@@ -690,6 +727,8 @@ let imagemAtual = "";
 let imagemMateriaBlob = null;
 let fotoPerfilBlob = null;
 let fotoADMBlob = null;
+let fotoEditarADMBlob = null;
+let editAdmId = null;
 
 let cropper = null;
 let cropResolver = null;
@@ -728,6 +767,12 @@ onAuthStateChanged(auth, async (u) => {
 
   perfil = snap.data();
 
+  if (perfil.ativo === false) {
+    alert("Seu acesso ao painel foi desativado.");
+    await signOut(auth);
+    return;
+  }
+
   document.getElementById("login").style.display = "none";
   document.getElementById("layout").style.display = "flex";
 
@@ -735,8 +780,10 @@ onAuthStateChanged(auth, async (u) => {
 
   if (perfil.role === "superadmin") {
     document.getElementById("btnCadastrar").style.display = "block";
+    document.getElementById("btnGerenciar").style.display = "block";
   } else {
     document.getElementById("btnCadastrar").style.display = "none";
+    document.getElementById("btnGerenciar").style.display = "none";
   }
 
   dashboard();
@@ -895,6 +942,10 @@ async function prepararFotoPerfil(input, preview, destino) {
 
   if (destino === "adm") {
     fotoADMBlob = blob;
+  }
+
+  if (destino === "editarAdm") {
+    fotoEditarADMBlob = blob;
   }
 
   preview.src = URL.createObjectURL(blob);
@@ -1369,6 +1420,7 @@ window.salvarADM = async () => {
       nomenclatura: nomenclatura,
       fotoUrl: fotoUrl,
       role: "admin",
+      ativo: true,
       criadoEm: new Date(),
       criadoPor: uid
     });
@@ -1383,6 +1435,205 @@ window.salvarADM = async () => {
     console.error(error);
     alert("Erro ao cadastrar ADM. Verifique se o e-mail já não está cadastrado e se a senha tem pelo menos 6 caracteres.");
   }
+};
+
+window.gerenciarADMs = async () => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para gerenciar ADMs.");
+    return;
+  }
+
+  marcarAtivo("Gerenciar ADMs");
+
+  const snap = await getDocs(collection(db, "admins"));
+
+  let linhas = "";
+
+  snap.forEach(docItem => {
+    const adm = docItem.data();
+    const admId = docItem.id;
+    const ativo = adm.ativo !== false;
+
+    linhas += `
+      <div class="adm-linha">
+        <img src="${adm.fotoUrl || "logo-vertical.png"}">
+
+        <div>
+          <strong>${adm.nome || "Sem nome"}</strong>
+          <p style="margin:6px 0 0; color:#64748b;">@${adm.user || "admin"} · ${adm.email || ""}</p>
+        </div>
+
+        <span class="badge">${adm.role || "admin"}</span>
+
+        <span class="badge ${ativo ? "badge-ok" : "badge-off"}">
+          ${ativo ? "Ativo" : "Desativado"}
+        </span>
+
+        <div class="acoes">
+          <button class="btn" onclick="editarADM('${admId}')">Editar</button>
+          ${
+            ativo
+              ? `<button class="btn btn-red" onclick="desativarADM('${admId}')">Desativar</button>`
+              : `<button class="btn btn-green" onclick="reativarADM('${admId}')">Reativar</button>`
+          }
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Gerenciar ADMs</h1>
+        <p>Controle os administradores com acesso ao painel do Diário Lunar.</p>
+      </div>
+
+      <button class="btn" onclick="cadastrarADM()">Cadastrar ADM</button>
+    </div>
+
+    <div class="card">
+      ${linhas || "<p>Nenhum ADM cadastrado ainda.</p>"}
+    </div>
+  `;
+};
+
+window.editarADM = async (admId) => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para editar ADMs.");
+    return;
+  }
+
+  editAdmId = admId;
+  fotoEditarADMBlob = null;
+
+  const snap = await getDoc(doc(db, "admins", admId));
+
+  if (!snap.exists()) {
+    alert("ADM não encontrado.");
+    return;
+  }
+
+  const adm = snap.data();
+
+  document.getElementById("conteudo").innerHTML = `
+    <div class="topo-painel">
+      <div>
+        <h1>Editar ADM</h1>
+        <p>Altere os dados do administrador selecionado.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-grid">
+        <div>
+          <label>Foto de perfil</label>
+          <img id="previewEditarADM" class="preview-perfil" src="${adm.fotoUrl || "logo-vertical.png"}">
+          <input id="fotoEditarADM" type="file" accept="image/*">
+
+          <label>Nome</label>
+          <input id="nomeEditarADM" value="${adm.nome || ""}">
+
+          <label>Email</label>
+          <input id="emailEditarADM" value="${adm.email || ""}" disabled>
+        </div>
+
+        <div>
+          <label>User</label>
+          <input id="userEditarADM" value="${adm.user || ""}">
+
+          <label>Nomenclatura</label>
+          <input id="nomenEditarADM" value="${adm.nomenclatura || ""}">
+
+          <label>Nível de acesso</label>
+          <select id="roleEditarADM">
+            <option value="admin" ${adm.role === "admin" ? "selected" : ""}>Admin</option>
+            <option value="superadmin" ${adm.role === "superadmin" ? "selected" : ""}>Superadmin</option>
+          </select>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn" onclick="salvarEdicaoADM()">Salvar alterações</button>
+            <button class="btn btn-dark" onclick="gerenciarADMs()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const inputFoto = document.getElementById("fotoEditarADM");
+  const preview = document.getElementById("previewEditarADM");
+
+  inputFoto.addEventListener("change", () => {
+    prepararFotoPerfil(inputFoto, preview, "editarAdm");
+  });
+};
+
+window.salvarEdicaoADM = async () => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para editar ADMs.");
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "admins", editAdmId));
+  const admAtual = snap.data();
+
+  let fotoUrl = admAtual.fotoUrl || "";
+
+  if (fotoEditarADMBlob) {
+    fotoUrl = await uploadBlob(fotoEditarADMBlob, `perfis/${editAdmId}`, "perfil-editado");
+  }
+
+  await updateDoc(doc(db, "admins", editAdmId), {
+    nome: nomeEditarADM.value.trim(),
+    user: userEditarADM.value.trim(),
+    nomenclatura: nomenEditarADM.value.trim(),
+    role: roleEditarADM.value,
+    fotoUrl: fotoUrl,
+    atualizadoEm: new Date()
+  });
+
+  alert("ADM atualizado com sucesso.");
+
+  editAdmId = null;
+  fotoEditarADMBlob = null;
+
+  gerenciarADMs();
+};
+
+window.desativarADM = async (admId) => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para desativar ADMs.");
+    return;
+  }
+
+  if (admId === uid) {
+    alert("Você não pode desativar seu próprio acesso.");
+    return;
+  }
+
+  if (!confirm("Deseja desativar o acesso deste ADM?")) return;
+
+  await updateDoc(doc(db, "admins", admId), {
+    ativo: false,
+    desativadoEm: new Date()
+  });
+
+  alert("Acesso desativado.");
+  gerenciarADMs();
+};
+
+window.reativarADM = async (admId) => {
+  if (perfil.role !== "superadmin") {
+    alert("Você não tem permissão para reativar ADMs.");
+    return;
+  }
+
+  await updateDoc(doc(db, "admins", admId), {
+    ativo: true,
+    reativadoEm: new Date()
+  });
+
+  alert("Acesso reativado.");
+  gerenciarADMs();
 };
 </script>
 
