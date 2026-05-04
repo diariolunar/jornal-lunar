@@ -7,370 +7,80 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #F8F6F1;
-  color: #07101F;
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 50px;
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
 }
 
-.logo img {
-  height: 70px;
-}
-
-.menu a {
-  margin: 0 14px;
-  text-decoration: none;
-  color: #07101F;
-  font-weight: 500;
-}
-
-.btn {
-  background: #6D28D9;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 25px;
-  text-decoration: none;
-  display: inline-block;
-}
-
+/* DESTAQUE */
 .hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 55px;
-  align-items: center;
-  padding: 60px 50px;
-}
-
-.hero-text p:first-child {
-  color: #0EA5E9;
-  font-weight: 500;
-}
-
-.hero-text h1 {
-  font-size: 52px;
-  line-height: 1.12;
-  margin: 30px 0;
-}
-
-.hero-text p {
-  font-size: 20px;
-}
-
-.hero-card {
-  background: #07101F;
-  color: white;
-  border-radius: 22px;
+  background: white;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  cursor: pointer;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-.hero-card img {
+.hero img {
   width: 100%;
-  height: 430px;
+  height: 300px;
   object-fit: cover;
-  display: block;
 }
 
 .hero-content {
-  padding: 28px;
+  padding: 20px;
 }
 
-.hero-content small {
-  color: #0EA5E9;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.hero-content h3 {
-  font-size: 26px;
-  margin: 18px 0 10px;
-}
-
-.hero-content p {
-  font-size: 17px;
-  line-height: 1.5;
-}
-
-.section {
-  padding: 20px 50px 60px;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #07101F;
-  margin-bottom: 20px;
-}
-
-.section-title span {
-  color: #6D28D9;
-}
-
+/* CARDS */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
 }
 
 .card {
   background: white;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.07);
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
 .card img {
   width: 100%;
-  height: 210px;
+  height: 150px;
   object-fit: cover;
-  display: block;
 }
 
 .card-content {
-  padding: 20px;
-}
-
-.card-content small {
-  color: #6D28D9;
-  font-weight: bold;
-  text-transform: uppercase;
+  padding: 15px;
 }
 
 .card-content h3 {
-  font-size: 22px;
-  margin: 12px 0;
+  margin: 10px 0;
 }
 
-.card-content p {
-  color: #333;
-  line-height: 1.5;
-}
-
-.card-content a {
-  color: #0EA5E9;
+small {
+  color: #6D28D9;
   font-weight: bold;
-  text-decoration: none;
-}
-
-.categorias {
-  padding: 10px 50px 60px;
-}
-
-.categoria-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 18px;
-}
-
-.categoria {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-  font-weight: bold;
-}
-
-.newsletter {
-  margin: 0 50px 60px;
-  background: #07101F;
-  color: white;
-  padding: 30px;
-  border-radius: 20px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  align-items: center;
-}
-
-.newsletter input {
-  padding: 14px;
-  border-radius: 10px;
-  border: none;
-  width: 300px;
-}
-
-.footer {
-  background: url("footer.png") center/cover no-repeat;
-  color: white;
-  padding: 40px;
-  margin-top: 60px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 30px;
-  position: relative;
-}
-
-.footer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(7,16,31,0.8);
-}
-
-.footer > * {
-  position: relative;
-}
-
-@media (max-width: 850px) {
-  .navbar {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .menu {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .hero {
-    grid-template-columns: 1fr;
-    padding: 35px 25px;
-  }
-
-  .hero-text h1 {
-    font-size: 38px;
-  }
-
-  .section,
-  .categorias {
-    padding-left: 25px;
-    padding-right: 25px;
-  }
-
-  .newsletter {
-    margin-left: 25px;
-    margin-right: 25px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .newsletter input {
-    width: 100%;
-  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="navbar">
-  <div class="logo">
-    <img src="logo-diario-lunar.png">
-  </div>
+<div class="container">
 
-  <div class="menu">
-    <a href="/">Início</a>
-    <a href="#">Matérias</a>
-    <a href="#">Resenhas</a>
-    <a href="#">Entrevistas</a>
-    <a href="#">Comunidade</a>
-    <a href="#">Sobre</a>
-  </div>
+  <!-- DESTAQUE -->
+  <div id="hero" class="hero"></div>
 
-  <a href="/admin.html" class="btn">Área ADM</a>
-</div>
+  <!-- LISTA -->
+  <div id="lista" class="grid"></div>
 
-<section class="hero">
-  <div class="hero-text">
-    <p>✦ Bem-vindo ao Diário Lunar</p>
-
-    <h1>As histórias que iluminam a comunidade literária</h1>
-
-    <p>Notícias, matérias, entrevistas e destaques do universo Lunar.</p>
-
-    <a class="btn" href="#materias">Explorar matérias</a>
-  </div>
-
-  <div class="hero-card" id="heroCard">
-    <img id="heroImagem" src="https://images.unsplash.com/photo-1507842217343-583bb7270b66">
-    <div class="hero-content">
-      <small id="heroCategoria">Literatura</small>
-      <h3 id="heroTitulo">Carregando matéria destaque...</h3>
-      <p id="heroResumo">Aguarde enquanto buscamos a matéria mais recente.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="materias">
-  <h2 class="section-title"><span>✦</span> Em destaque</h2>
-
-  <div class="grid" id="posts"></div>
-</section>
-
-<section class="categorias">
-  <h2 class="section-title"><span>✦</span> Navegue por categorias</h2>
-
-  <div class="categoria-grid">
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Literatura'">📚 Literatura</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Comunidade'">👥 Comunidade</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Autores'">✒️ Autores</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Eventos'">📅 Eventos</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Resenhas'">⭐ Resenhas</div>
-    <div class="categoria" onclick="location.href='/categoria.html?tipo=Destaques Lunar'">🌙 Destaques Lunar</div>
-  </div>
-</section>
-
-<div class="newsletter">
-  <div>
-    <h2>Receba novidades lunares</h2>
-    <p>Fique por dentro das novidades, lançamentos e conteúdos exclusivos.</p>
-  </div>
-
-  <div>
-    <input placeholder="Seu melhor e-mail">
-    <a href="#" class="btn">Assinar</a>
-  </div>
-</div>
-
-<div class="footer">
-  <div>
-    <img src="logo-diario-lunar2.png" style="height:60px; margin-right:10px;">
-    <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
-    <p>Instagram · Site Lunar · E-mail</p>
-  </div>
-
-  <div>
-    <h3>Navegação</h3>
-    <p>Início</p>
-    <p>Matérias</p>
-    <p>Resenhas</p>
-    <p>Entrevistas</p>
-    <p>Sobre</p>
-  </div>
-
-  <div>
-    <h3>Categorias</h3>
-    <p>Literatura</p>
-    <p>Comunidade</p>
-    <p>Autores</p>
-    <p>Eventos</p>
-    <p>Destaques Lunar</p>
-  </div>
-
-  <div>
-    <h3>Institucional</h3>
-    <p>Sobre o Diário Lunar</p>
-    <p>Nossa missão</p>
-    <p>Equipe</p>
-    <p>Contato</p>
-    <p>Política de Privacidade</p>
-  </div>
 </div>
 
 <script type="module">
@@ -383,73 +93,66 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
   authDomain: "diario-lunar-dee91.firebaseapp.com",
-  projectId: "diario-lunar-dee91",
-  storageBucket: "diario-lunar-dee91.firebasestorage.app",
-  messagingSenderId: "817640390152",
-  appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
-};
+  projectId: "diario-lunar-dee91"
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function carregarPosts() {
-  const q = query(collection(db, "posts"), orderBy("data", "desc"));
-  const snapshot = await getDocs(q);
+function limparTexto(html) {
+  let texto = html || "";
 
-  const container = document.getElementById("posts");
-  container.innerHTML = "";
+  texto = texto
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n");
 
-  let contador = 0;
+  texto = texto.replace(/<[^>]*>/g, "");
 
-  snapshot.forEach((docItem) => {
-    const post = docItem.data();
+  texto = texto.replace(/\n\s*\n/g, "\n");
 
-    if (contador === 0) {
-      document.getElementById("heroImagem").src = post.imagem || "";
-      document.getElementById("heroCategoria").innerText = post.categoria || "Matéria";
-      document.getElementById("heroTitulo").innerText = post.titulo || "";
-      const textoLimpo = (post.conteudo || "").replace(/<[^>]*>/g, "");
+  return texto.trim();
+}
 
-      document.getElementById("heroResumo").innerText = textoLimpo.substring(0, 160) + "...";
+const q = query(collection(db, "posts"), orderBy("data", "desc"));
+const snap = await getDocs(q);
 
-      document.getElementById("heroCard").onclick = () => {
-        window.location.href = `/post.html?id=${docItem.id}`;
-      };
-    }
+const hero = document.getElementById("hero");
+const lista = document.getElementById("lista");
 
+let primeiro = true;
+
+snap.forEach(doc => {
+  const post = doc.data();
+  const textoLimpo = limparTexto(post.conteudo);
+
+  if (primeiro) {
+    hero.innerHTML = `
+      <img src="${post.imagem}">
+      <div class="hero-content">
+        <small>${post.categoria || ""}</small>
+        <h2>${post.titulo}</h2>
+        <p>${textoLimpo.substring(0,160)}...</p>
+      </div>
+    `;
+    primeiro = false;
+  } else {
     const div = document.createElement("div");
     div.className = "card";
 
-    div.onclick = () => {
-      window.location.href = `/post.html?id=${docItem.id}`;
-    };
-
     div.innerHTML = `
-      <img src="${post.imagem || ""}">
+      <img src="${post.imagem}">
       <div class="card-content">
-        <small>${post.categoria || "Matéria"}</small>
-        <h3>${post.titulo || ""}</h3>
-        <p>${(post.conteudo || "").replace(/<[^>]*>/g, "").substring(0, 120)}...</p>
-        <a href="/post.html?id=${docItem.id}">Ler matéria →</a>
+        <small>${post.categoria || ""}</small>
+        <h3>${post.titulo}</h3>
+        <p>${textoLimpo.substring(0,120)}...</p>
       </div>
     `;
 
-    container.appendChild(div);
-
-    contador++;
-  });
-
-  if (contador === 0) {
-    document.getElementById("heroTitulo").innerText = "Nenhuma matéria publicada ainda";
-    document.getElementById("heroResumo").innerText = "Publique a primeira matéria pelo painel ADM.";
-    container.innerHTML = "<p>Nenhuma matéria publicada ainda.</p>";
+    lista.appendChild(div);
   }
-}
-
-carregarPosts();
+});
 </script>
 
 </body>
