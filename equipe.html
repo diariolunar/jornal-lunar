@@ -10,7 +10,7 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
 .logo img { height:70px; }
 .menu { display:flex; flex-wrap:wrap; justify-content:center; }
 .menu a { margin:6px 10px; text-decoration:none; color:#07101F; font-weight:500; }
-.btn { background:#6D28D9; color:white; padding:12px 24px; border-radius:25px; text-decoration:none; display:inline-block; }
+.btn { background:#6D28D9; color:white; padding:12px 24px; border-radius:25px; text-decoration:none; display:inline-block; border:none; cursor:pointer; }
 .header { padding:60px 50px 25px; }
 .header p { color:#0EA5E9; font-weight:bold; }
 .header h1 { font-size:48px; margin:10px 0; }
@@ -21,10 +21,14 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
 .card h3 { margin-bottom:6px; }
 .card .user { color:#6D28D9; font-weight:bold; }
 .card .cargo { display:inline-block; margin-top:12px; background:linear-gradient(90deg,#0EA5E9,#6D28D9); color:white; padding:8px 14px; border-radius:999px; font-size:13px; }
-.footer { background:url("footer.png") center/cover no-repeat; color:white; padding:40px; margin-top:60px; display:grid; grid-template-columns:2fr 1fr; gap:30px; position:relative; }
-.footer::before { content:""; position:absolute; inset:0; background:rgba(7,16,31,.8); }
+
+.footer { background:url("footer.png") center/cover no-repeat; color:white; padding:45px 50px; margin-top:60px; display:grid; grid-template-columns:1.4fr 1.2fr 1fr; gap:35px; position:relative; }
+.footer::before { content:""; position:absolute; inset:0; background:rgba(7,16,31,.82); }
 .footer > * { position:relative; }
 .footer a { color:white; text-decoration:none; display:block; margin:8px 0; }
+.newsletter-box { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); padding:22px; border-radius:20px; }
+.newsletter-box input { width:100%; box-sizing:border-box; padding:13px; border:none; border-radius:12px; margin:10px 0; }
+
 @media(max-width:850px){ .navbar{flex-direction:column;gap:20px}.header,.section{padding-left:25px;padding-right:25px}.footer{grid-template-columns:1fr} }
 </style>
 </head>
@@ -33,6 +37,7 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
 
 <div class="navbar">
   <div class="logo"><img src="logo-diario-lunar.png"></div>
+
   <div class="menu">
     <a href="/">Início</a>
     <a href="/materias.html">Todas as Matérias</a>
@@ -44,6 +49,7 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
     <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
     <a href="/categoria.html?tipo=Destaques Lunar">Destaques Lunar</a>
   </div>
+
   <a href="/admin.html" class="btn">Área ADM</a>
 </div>
 
@@ -65,6 +71,14 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
     <a href="https://projetolunar.com.br" target="_blank">Site Lunar</a>
     <a href="mailto:diariolunar47@gmail.com">E-mail</a>
   </div>
+
+  <div class="newsletter-box">
+    <h3>Receba novidades lunares</h3>
+    <p>Fique por dentro das matérias, destaques e novidades da comunidade.</p>
+    <input placeholder="Seu melhor e-mail">
+    <a href="#" class="btn">Inscrever-se</a>
+  </div>
+
   <div>
     <h3>Institucional</h3>
     <a href="/sobre.html">Sobre o Diário Lunar</a>
