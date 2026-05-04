@@ -1,19 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Diário Lunar</title>
-</head>
-
-<body>
-
-<h1>Diário Lunar</h1>
-
-<button onclick="loginGoogle()">Entrar com Google</button>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
@@ -27,20 +15,25 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
   window.loginGoogle = function () {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        alert("Login realizado!");
-        console.log(result.user);
-      })
-      .catch((error) => {
-        console.error(error);
-        alert("Erro no login");
-      });
+    signInWithPopup(auth, provider);
   };
-</script>
 
-</body>
-</html>
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      console.log("Usuário logado:", user.email);
+
+      // salva no banco
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        name: user.displayName,
+        isAdmin: true
+      });
+
+      alert("Você é ADM agora 🔥");
+    }
+  });
+</script>
