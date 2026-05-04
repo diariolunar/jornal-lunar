@@ -1,94 +1,359 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Painel ADM - Diário Lunar</title>
+<meta charset="UTF-8">
+<title>Área ADM - Diário Lunar</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #F8F6F1;
+  color: #07101F;
+}
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  text-align: center;
+  width: 350px;
+}
+
+.btn {
+  background: #6D28D9;
+  color: white;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.admin-layout {
+  display: none;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 280px;
+  background: #07101F;
+  color: white;
+  padding: 30px;
+}
+
+.sidebar img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: white;
+  color: #07101F;
+  font-weight: bold;
+}
+
+.sidebar button:hover {
+  background: #0EA5E9;
+  color: white;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 22px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+input, textarea, select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-family: Arial, sans-serif;
+}
+
+textarea {
+  height: 220px;
+}
+
+.materia-item {
+  background: white;
+  padding: 20px;
+  border-radius: 18px;
+  margin-bottom: 15px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.materia-item img {
+  width: 140px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.actions button {
+  margin-right: 8px;
+  margin-top: 10px;
+}
+</style>
 </head>
 
-<body style="font-family: Arial; max-width:700px; margin:auto; padding:30px;">
+<body>
 
-<h1>Painel ADM</h1>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h1>Área ADM</h1>
+    <p>Entre com sua conta autorizada para acessar o painel.</p>
+    <button class="btn" id="loginBtn">Entrar com Google</button>
+  </div>
+</div>
 
-<input id="titulo" placeholder="Título da matéria" style="width:100%; padding:10px; margin-bottom:10px;">
+<div id="adminLayout" class="admin-layout">
 
-<input id="imagem" placeholder="Link da imagem da matéria" style="width:100%; padding:10px; margin-bottom:10px;">
+  <aside class="sidebar">
+    <img id="admFoto" src="">
+    <h2 id="admNome"></h2>
+    <p id="admEmail"></p>
 
-<select id="categoria" style="width:100%; padding:10px; margin-bottom:10px;">
-  <option value="">Escolha a categoria</option>
-  <option value="Literatura">Literatura</option>
-  <option value="Comunidade">Comunidade</option>
-  <option value="Autores">Autores</option>
-  <option value="Eventos">Eventos</option>
-  <option value="Resenhas">Resenhas</option>
-  <option value="Entrevistas">Entrevistas</option>
-  <option value="Destaques Lunar">Destaques Lunar</option>
-</select>
+    <hr>
 
-<textarea id="conteudo" placeholder="Conteúdo da matéria" style="width:100%; height:220px; padding:10px;"></textarea>
+    <button onclick="mostrarNovaMateria()">Nova Matéria</button>
+    <button onclick="mostrarMaterias()">Matérias Publicadas</button>
+    <button onclick="sair()">Sair</button>
+  </aside>
 
-<br><br>
+  <main class="content" id="conteudoPainel"></main>
 
-<button onclick="publicar()" style="background:#6B21A8; color:white; padding:12px 22px; border:none; border-radius:10px;">
-  Publicar matéria
-</button>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-  import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
-    authDomain: "diario-lunar-dee91.firebaseapp.com",
-    projectId: "diario-lunar-dee91",
-    storageBucket: "diario-lunar-dee91.firebasestorage.app",
-    messagingSenderId: "817640390152",
-    appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
+  authDomain: "diario-lunar-dee91.firebaseapp.com",
+  projectId: "diario-lunar-dee91",
+  storageBucket: "diario-lunar-dee91.firebasestorage.app",
+  messagingSenderId: "817640390152",
+  appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+let usuarioAtual = null;
+let editandoId = null;
+
+document.getElementById("loginBtn").onclick = async () => {
+  await signInWithPopup(auth, provider);
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    usuarioAtual = user;
+
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("adminLayout").style.display = "flex";
+
+    document.getElementById("admFoto").src = user.photoURL || "";
+    document.getElementById("admNome").innerText = user.displayName || "Administrador";
+    document.getElementById("admEmail").innerText = user.email;
+
+    mostrarNovaMateria();
+  } else {
+    usuarioAtual = null;
+
+    document.getElementById("loginScreen").style.display = "flex";
+    document.getElementById("adminLayout").style.display = "none";
+  }
+});
+
+window.mostrarNovaMateria = function (post = null, id = null) {
+  editandoId = id;
+
+  document.getElementById("conteudoPainel").innerHTML = `
+    <div class="card">
+      <h1>${post ? "Editar Matéria" : "Nova Matéria"}</h1>
+
+      <input id="titulo" placeholder="Título da matéria" value="${post?.titulo || ""}">
+
+      <input id="imagem" placeholder="Link da imagem da matéria" value="${post?.imagem || ""}">
+
+      <select id="categoria">
+        <option value="">Escolha a categoria</option>
+        <option value="Literatura" ${post?.categoria === "Literatura" ? "selected" : ""}>Literatura</option>
+        <option value="Comunidade" ${post?.categoria === "Comunidade" ? "selected" : ""}>Comunidade</option>
+        <option value="Autores" ${post?.categoria === "Autores" ? "selected" : ""}>Autores</option>
+        <option value="Eventos" ${post?.categoria === "Eventos" ? "selected" : ""}>Eventos</option>
+        <option value="Resenhas" ${post?.categoria === "Resenhas" ? "selected" : ""}>Resenhas</option>
+        <option value="Entrevistas" ${post?.categoria === "Entrevistas" ? "selected" : ""}>Entrevistas</option>
+        <option value="Destaques Lunar" ${post?.categoria === "Destaques Lunar" ? "selected" : ""}>Destaques Lunar</option>
+      </select>
+
+      <textarea id="conteudo" placeholder="Conteúdo da matéria">${post?.conteudo || ""}</textarea>
+
+      <button class="btn" onclick="salvarMateria()">
+        ${post ? "Salvar alterações" : "Publicar matéria"}
+      </button>
+    </div>
+  `;
+};
+
+window.salvarMateria = async function () {
+  const titulo = document.getElementById("titulo").value.trim();
+  const imagem = document.getElementById("imagem").value.trim();
+  const categoria = document.getElementById("categoria").value;
+  const conteudo = document.getElementById("conteudo").value.trim();
+
+  if (!titulo || !imagem || !categoria || !conteudo) {
+    alert("Preencha todos os campos.");
+    return;
+  }
+
+  const dados = {
+    titulo,
+    imagem,
+    categoria,
+    conteudo,
+    autor: usuarioAtual.email,
+    atualizadoEm: new Date()
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  let userAtual = null;
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      userAtual = user;
-    } else {
-      alert("Você precisa estar logado.");
-      window.location.href = "/";
-    }
-  });
-
-  window.publicar = async function () {
-    const titulo = document.getElementById("titulo").value;
-    const imagem = document.getElementById("imagem").value;
-    const categoria = document.getElementById("categoria").value;
-    const conteudo = document.getElementById("conteudo").value;
-
-    if (!titulo || !imagem || !categoria || !conteudo) {
-      alert("Preencha todos os campos.");
-      return;
-    }
-
+  if (editandoId) {
+    await updateDoc(doc(db, "posts", editandoId), dados);
+    alert("Matéria atualizada!");
+  } else {
     await addDoc(collection(db, "posts"), {
-      titulo,
-      imagem,
-      categoria,
-      conteudo,
-      autor: userAtual.email,
+      ...dados,
       curtidas: 0,
       data: new Date()
     });
 
     alert("Matéria publicada!");
+  }
 
-    document.getElementById("titulo").value = "";
-    document.getElementById("imagem").value = "";
-    document.getElementById("categoria").value = "";
-    document.getElementById("conteudo").value = "";
-  };
+  editandoId = null;
+  mostrarMaterias();
+};
+
+window.mostrarMaterias = async function () {
+  document.getElementById("conteudoPainel").innerHTML = `
+    <div class="card">
+      <h1>Matérias Publicadas</h1>
+      <div id="listaMaterias">Carregando...</div>
+    </div>
+  `;
+
+  const q = query(collection(db, "posts"), orderBy("data", "desc"));
+  const snapshot = await getDocs(q);
+
+  const lista = document.getElementById("listaMaterias");
+  lista.innerHTML = "";
+
+  if (snapshot.empty) {
+    lista.innerHTML = "<p>Nenhuma matéria publicada ainda.</p>";
+    return;
+  }
+
+  snapshot.forEach((docItem) => {
+    const post = docItem.data();
+
+    const div = document.createElement("div");
+    div.className = "materia-item";
+
+    div.innerHTML = `
+      <div style="display:flex; gap:18px; align-items:flex-start;">
+        <img src="${post.imagem || ""}">
+        <div>
+          <small style="color:#6D28D9; font-weight:bold;">${post.categoria || ""}</small>
+          <h3>${post.titulo || ""}</h3>
+          <p>${(post.conteudo || "").substring(0, 130)}...</p>
+
+          <div class="actions">
+            <button class="btn" onclick="editarMateria('${docItem.id}')">Editar</button>
+            <button class="btn" style="background:#07101F;" onclick="excluirMateria('${docItem.id}')">Excluir</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    lista.appendChild(div);
+  });
+};
+
+window.editarMateria = async function (id) {
+  const snap = await getDoc(doc(db, "posts", id));
+
+  if (!snap.exists()) {
+    alert("Matéria não encontrada.");
+    return;
+  }
+
+  mostrarNovaMateria(snap.data(), id);
+};
+
+window.excluirMateria = async function (id) {
+  const confirmar = confirm("Tem certeza que deseja excluir esta matéria?");
+
+  if (!confirmar) return;
+
+  await deleteDoc(doc(db, "posts", id));
+
+  alert("Matéria excluída.");
+  mostrarMaterias();
+};
+
+window.sair = async function () {
+  await signOut(auth);
+};
 </script>
 
 </body>
