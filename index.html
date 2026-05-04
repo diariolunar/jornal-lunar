@@ -1,75 +1,208 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Diário Lunar</title>
+<meta charset="UTF-8">
+<title>Diário Lunar</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #F8F6F1;
+  color: #07101F;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+}
+
+.menu a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #07101F;
+  font-weight: 500;
+}
+
+.btn {
+  background: #6D28D9;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+/* HERO */
+.hero {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  align-items: center;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-text h1 {
+  font-size: 42px;
+}
+
+.hero-card {
+  flex: 1;
+  background: #07101F;
+  color: white;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.hero-card img {
+  width: 100%;
+}
+
+.hero-content {
+  padding: 20px;
+}
+
+/* SEÇÃO */
+.section {
+  padding: 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.card img {
+  width: 100%;
+}
+
+.card-content {
+  padding: 15px;
+}
+
+/* FOOTER */
+.footer {
+  background: #07101F;
+  color: white;
+  padding: 40px;
+  margin-top: 40px;
+}
+</style>
+
 </head>
 
-<body style="font-family: Arial; max-width:1100px; margin:auto; padding:20px;">
+<body>
 
-<h1 style="color:#3B0764;">Diário Lunar</h1>
+<!-- NAVBAR -->
+<div class="navbar">
+  <div style="display:flex; align-items:center;">
+    <img src="logo-diario-lunar.png" style="height:40px; margin-right:10px;">
+    <strong>Diário Lunar</strong>
+  </div>
 
-<button onclick="loginGoogle()" style="margin-bottom:20px; padding:10px 20px; background:#6B21A8; color:white; border:none; border-radius:10px;">
-  Entrar
-</button>
+  <div class="menu">
+    <a href="#">Início</a>
+    <a href="#">Matérias</a>
+    <a href="#">Resenhas</a>
+    <a href="#">Entrevistas</a>
+    <a href="#">Comunidade</a>
+    <a href="#">Sobre</a>
+  </div>
 
-<h2 style="color:#3B0764;">Últimas matérias</h2>
+  <a href="/admin.html" class="btn">Área ADM</a>
+</div>
 
-<div id="lista" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:20px;"></div>
+<!-- HERO -->
+<div class="hero">
+
+  <div class="hero-text">
+    <p style="color:#0EA5E9;">Bem-vindo ao Diário Lunar</p>
+
+    <h1>As histórias que iluminam a comunidade literária</h1>
+
+    <p>Notícias, matérias, entrevistas e destaques do universo Lunar.</p>
+
+    <a class="btn" href="#">Explorar matérias</a>
+  </div>
+
+  <div class="hero-card">
+    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66">
+
+    <div class="hero-content">
+      <small style="color:#0EA5E9;">Literatura</small>
+      <h3>O poder das histórias</h3>
+      <p>Como os livros transformam nossas vidas todos os dias.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- DESTAQUE -->
+<div class="section">
+  <h2>Em destaque</h2>
+
+  <div class="grid" id="posts"></div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h3>Diário Lunar</h3>
+  <p>Um espaço dedicado à literatura e à comunidade.</p>
+</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
-    authDomain: "diario-lunar-dee91.firebaseapp.com",
-    projectId: "diario-lunar-dee91",
-    storageBucket: "diario-lunar-dee91.firebasestorage.app",
-    messagingSenderId: "817640390152",
-    appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
+  authDomain: "diario-lunar-dee91.firebaseapp.com",
+  projectId: "diario-lunar-dee91",
+  storageBucket: "diario-lunar-dee91.firebasestorage.app",
+  messagingSenderId: "817640390152",
+  appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const provider = new GoogleAuthProvider();
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  window.loginGoogle = function () {
-    signInWithPopup(auth, provider);
-  };
+async function carregarPosts() {
+  const snapshot = await getDocs(collection(db, "posts"));
+  const container = document.getElementById("posts");
 
-  async function carregarPosts() {
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    const lista = document.getElementById("lista");
+  snapshot.forEach(doc => {
+    const post = doc.data();
 
-    lista.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "card";
 
-    querySnapshot.forEach((doc) => {
-      const post = doc.data();
+    div.innerHTML = `
+      <img src="${post.imagem}">
+      <div class="card-content">
+        <small style="color:#6D28D9;">${post.categoria}</small>
+        <h3>${post.titulo}</h3>
+        <p>${post.conteudo.substring(0, 100)}...</p>
+      </div>
+    `;
 
-      const div = document.createElement("div");
-      div.style.border = "1px solid #ddd";
-      div.style.borderRadius = "15px";
-      div.style.overflow = "hidden";
-      div.style.background = "white";
+    container.appendChild(div);
+  });
+}
 
-      div.innerHTML = `
-        <img src="${post.imagem}" style="width:100%; height:180px; object-fit:cover;">
-        <div style="padding:15px;">
-          <small style="color:#6B21A8;">${post.categoria}</small>
-          <h3 style="margin:10px 0;">${post.titulo}</h3>
-          <p>${post.conteudo.substring(0, 120)}...</p>
-          <small>Por ${post.autor}</small>
-        </div>
-      `;
-
-      lista.appendChild(div);
-    });
-  }
-
-  carregarPosts();
+carregarPosts();
 </script>
 
 </body>
