@@ -184,11 +184,11 @@ body {
 .footer {
   background: url("footer.png") center/cover no-repeat;
   color: white;
-  padding: 40px;
+  padding: 45px 50px;
   margin-top: 60px;
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 30px;
+  grid-template-columns: 1.4fr 1.2fr 1fr;
+  gap: 35px;
   position: relative;
 }
 
@@ -196,7 +196,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(7,16,31,0.8);
+  background: rgba(7,16,31,0.82);
 }
 
 .footer > * {
@@ -208,6 +208,22 @@ body {
   text-decoration: none;
   display: block;
   margin: 8px 0;
+}
+
+.newsletter-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.newsletter-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
 }
 
 @media (max-width: 1100px) {
@@ -264,6 +280,7 @@ body {
     <a href="/categoria.html?tipo=Resenhas">Resenhas</a>
     <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
     <a href="/categoria.html?tipo=Destaques Lunar">Destaques Lunar</a>
+    <a href="/sobre.html">Sobre</a>
   </div>
 
   <a href="/admin.html" class="btn">Área ADM</a>
@@ -307,6 +324,13 @@ body {
     <a href="https://www.instagram.com/_projeto.lunar?igsh=YWd2enkzMjJmeGxv" target="_blank">Instagram</a>
     <a href="https://projetolunar.com.br" target="_blank">Site Lunar</a>
     <a href="mailto:diariolunar47@gmail.com">E-mail</a>
+  </div>
+
+  <div class="newsletter-box">
+    <h3>Receba novidades lunares</h3>
+    <p>Fique por dentro das matérias, destaques e novidades da comunidade.</p>
+    <input placeholder="Seu melhor e-mail">
+    <a href="#" class="btn">Inscrever-se</a>
   </div>
 
   <div>
