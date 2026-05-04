@@ -215,22 +215,28 @@ async function carregarPosts() {
   const container = document.getElementById("posts");
 
   snapshot.forEach(doc => {
-    const post = doc.data();
+  const post = doc.data();
 
-    const div = document.createElement("div");
-    div.className = "card";
+  const div = document.createElement("div");
+  div.className = "card";
 
-    div.innerHTML = `
-      <img src="${post.imagem}">
-      <div class="card-content">
-        <small style="color:#6D28D9;">${post.categoria}</small>
-        <h3>${post.titulo}</h3>
-        <p>${post.conteudo.substring(0, 100)}...</p>
-      </div>
-    `;
+  // 👇 ADICIONA ISSO
+  div.style.cursor = "pointer";
+  div.onclick = () => {
+    window.location.href = `/post.html?id=${doc.id}`;
+  };
 
-    container.appendChild(div);
-  });
+  div.innerHTML = `
+    <img src="${post.imagem}">
+    <div class="card-content">
+      <small style="color:#6D28D9;">${post.categoria}</small>
+      <h3>${post.titulo}</h3>
+      <p>${post.conteudo.substring(0, 100)}...</p>
+    </div>
+  `;
+
+  container.appendChild(div);
+});
 }
 
 carregarPosts();
