@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Diário Lunar</title>
+</head>
+
+<body>
+
+<h1>Diário Lunar</h1>
+
+<button onclick="loginGoogle()">Entrar com Google</button>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
+    authDomain: "diario-lunar-dee91.firebaseapp.com",
+    projectId: "diario-lunar-dee91",
+    storageBucket: "diario-lunar-dee91.firebasestorage.app",
+    messagingSenderId: "817640390152",
+    appId: "1:817640390152:web:89e4b6a032b2124a6f1bbd",
+    measurementId: "G-CQV35CD7QV"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  window.loginGoogle = function () {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        alert("Login realizado!");
+        console.log(result.user);
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Erro no login");
+      });
+  };
+</script>
+
+</body>
+</html>
