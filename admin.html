@@ -1104,6 +1104,9 @@ window.novaMateria = (p = null, id = null) => {
             <option value="Destaques Lunar" ${p?.categoria === "Destaques Lunar" ? "selected" : ""}>Destaques Lunar</option>
           </select>
 
+          <label>Data da publicação</label>
+          <input id="dataPublicacao" type="date" value="${p?.data?.toDate ? p.data.toDate().toISOString().split('T')[0] : ''}">
+
           <label>Imagem da matéria</label>
           <img id="previewImagem" class="preview-img" src="${p?.imagem || ""}" style="${p?.imagem ? "display:block;" : ""}">
           <input id="arquivoImagem" type="file" accept="image/*">
