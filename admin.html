@@ -1173,7 +1173,9 @@ window.salvar = async () => {
   } else {
     await addDoc(collection(db, "posts"), {
       ...dados,
-      data: new Date(),
+      data: dataPublicacao.value
+          ? new Date(dataPublicacao.value + "T12:00:00")
+          : new Date(),
       curtidas: 0
     });
     alert("Matéria publicada!");
