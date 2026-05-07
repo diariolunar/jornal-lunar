@@ -425,6 +425,17 @@ function formatarData(data) {
   }
 }
 
+function mostrarMateriaNaoEncontrada() {
+  document.querySelector(".post-container").innerHTML = `
+    <a href="/" style="color:#6D28D9; text-decoration:none;">← Voltar para o início</a>
+    <div style="background:white; padding:35px; border-radius:22px; box-shadow:0 8px 25px rgba(0,0,0,0.05); margin-top:25px;">
+      <h1>Matéria não encontrada</h1>
+      <p>Essa matéria não está disponível publicamente.</p>
+      <a href="/materias.html" class="btn">Ver matérias publicadas</a>
+    </div>
+  `;
+}
+
 async function buscarReporter(userAutor) {
   const snapshot = await getDocs(collection(db, "admins"));
   let reporter = null;
@@ -446,7 +457,7 @@ async function buscarReporter(userAutor) {
 
 async function carregarPost() {
   if (!id) {
-    document.querySelector(".post-container").innerHTML = "<h1>Matéria não encontrada</h1>";
+    mostrarMateriaNaoEncontrada();
     return;
   }
 
@@ -455,6 +466,11 @@ async function carregarPost() {
 
   if (postSnap.exists()) {
     const post = postSnap.data();
+
+    if (post.status !== "publicado") {
+      mostrarMateriaNaoEncontrada();
+      return;
+    }
 
     document.getElementById("titulo").innerText = post.titulo || "";
     document.getElementById("categoria").innerText = post.categoria || "";
@@ -467,9 +483,20 @@ async function carregarPost() {
 
     document.getElementById("autorUser").innerText = "@" + autorUser;
 
-    if (reporter) {
+    if (reporter && reporter.reporter !== false) {
       document.getElementById("fotoReporter").src = reporter.fotoUrl || "logo-vertical.png";
-      document.getElementById("autorNomenclatura").innerText = reporter.nomenclatura ? `(${reporter.nomenclatura})` : "";
+
+      let identificacao = "";
+
+      if (reporter.nomenclatura) {
+        identificacao += `(${reporter.nomenclatura})`;
+      }
+
+      if (reporter.cargo) {
+        identificacao += reporter.nomenclatura ? ` · ${reporter.cargo}` : reporter.cargo;
+      }
+
+      document.getElementById("autorNomenclatura").innerText = identificacao;
     } else {
       document.getElementById("fotoReporter").src = "logo-vertical.png";
       document.getElementById("autorNomenclatura").innerText = "";
@@ -481,7 +508,7 @@ async function carregarPost() {
 
     verificarCurtida();
   } else {
-    document.querySelector(".post-container").innerHTML = "<h1>Matéria não encontrada</h1>";
+    mostrarMateriaNaoEncontrada();
   }
 }
 
@@ -514,7 +541,16 @@ async function curtir() {
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
 
-  let atual = postSnap.data().curtidas || 0;
+  if (!postSnap.exists()) return;
+
+  const post = postSnap.data();
+
+  if (post.status !== "publicado") {
+    alert("Essa matéria não está disponível para interação.");
+    return;
+  }
+
+  let atual = post.curtidas || 0;
 
   if (likeSnap.exists()) {
     await deleteDoc(likeRef);
@@ -549,6 +585,14 @@ async function comentar() {
   const usuario = pegarUsuario();
   if (!usuario) return;
 
+  const postRef = doc(db, "posts", id);
+  const postSnap = await getDoc(postRef);
+
+  if (!postSnap.exists() || postSnap.data().status !== "publicado") {
+    alert("Essa matéria não está disponível para comentários.");
+    return;
+  }
+
   const texto = document.getElementById("comentarioInput").value.trim();
 
   if (!texto) {
@@ -572,6 +616,8 @@ async function carregarComentarios() {
 
   const snapshot = await getDocs(collection(db, "comentarios"));
   const container = document.getElementById("listaComentarios");
+
+  if (!container) return;
 
   container.innerHTML = "";
 
