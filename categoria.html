@@ -320,7 +320,7 @@ function getDataNumber(post) {
 }
 
 function estaPublicado(post) {
-  return post.status === "publicado";
+  return post.status === "publicado" || !post.status;
 }
 
 async function carregarCategoria() {
