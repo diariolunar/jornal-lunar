@@ -319,6 +319,10 @@ function getDataNumber(post) {
   return 0;
 }
 
+function estaPublicado(post) {
+  return post.status === "publicado";
+}
+
 async function carregarCategoria() {
   const snapshot = await getDocs(collection(db, "posts"));
   const container = document.getElementById("posts");
@@ -329,6 +333,8 @@ async function carregarCategoria() {
 
   snapshot.forEach((docItem) => {
     const post = docItem.data();
+
+    if (!estaPublicado(post)) return;
 
     if (post.categoria === tipo) {
       posts.push({
