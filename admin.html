@@ -361,6 +361,10 @@ input, textarea, select {
   font-weight: bold;
 }
 
+.editor-toolbar button:hover {
+  background: #ddd6fe;
+}
+
 .editor {
   min-height: 360px;
   border: 1px solid #d1d5db;
@@ -369,6 +373,16 @@ input, textarea, select {
   background: white;
   line-height: 1.7;
   outline: none;
+}
+
+.editor a {
+  color: #6D28D9;
+  font-weight: bold;
+}
+
+.editor ul,
+.editor ol {
+  padding-left: 28px;
 }
 
 .preview-img {
@@ -1082,7 +1096,25 @@ window.dashboard = async () => {
 };
 
 window.formatarTexto = function(comando) {
+  document.getElementById("editorMateria")?.focus();
   document.execCommand(comando, false, null);
+};
+
+window.inserirLink = function () {
+  const editor = document.getElementById("editorMateria");
+  if (editor) editor.focus();
+
+  let url = prompt("Cole o link que deseja inserir:");
+
+  if (!url) return;
+
+  url = url.trim();
+
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+
+  document.execCommand("createLink", false, url);
 };
 
 window.novaMateria = (p = null, id = null) => {
@@ -1139,6 +1171,9 @@ window.novaMateria = (p = null, id = null) => {
             <button type="button" onclick="formatarTexto('justifyCenter')">⬌</button>
             <button type="button" onclick="formatarTexto('justifyRight')">➡</button>
             <button type="button" onclick="formatarTexto('justifyFull')">☰</button>
+            <button type="button" onclick="inserirLink()">🔗 Link</button>
+            <button type="button" onclick="formatarTexto('insertUnorderedList')">• Lista</button>
+            <button type="button" onclick="formatarTexto('insertOrderedList')">1. Lista</button>
           </div>
 
           <div id="editorMateria" class="editor" contenteditable="true">${p?.conteudo || ""}</div>
