@@ -963,6 +963,20 @@ function getDataNumber(post) {
   return 0;
 }
 
+function valorDataInput(data) {
+  if (!data) return "";
+
+  try {
+    if (data.toDate) {
+      return data.toDate().toISOString().split("T")[0];
+    }
+
+    return new Date(data).toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+}
+
 window.sair = async () => {
   await signOut(auth);
 
@@ -1105,7 +1119,7 @@ window.novaMateria = (p = null, id = null) => {
           </select>
 
           <label>Data da publicação</label>
-          <input id="dataPublicacao" type="date" value="${p?.data?.toDate ? p.data.toDate().toISOString().split('T')[0] : ''}">
+          <input id="dataPublicacao" type="date" value="${valorDataInput(p?.data)}">
 
           <label>Imagem da matéria</label>
           <img id="previewImagem" class="preview-img" src="${p?.imagem || ""}" style="${p?.imagem ? "display:block;" : ""}">
@@ -1153,12 +1167,17 @@ window.salvar = async () => {
     imagemFinal = await uploadBlob(imagemMateriaBlob, "materias", "materia");
   }
 
+  const dataEscolhida = dataPublicacao.value
+    ? new Date(dataPublicacao.value + "T12:00:00")
+    : new Date();
+
   const dados = {
     titulo: titulo.value.trim(),
     imagem: imagemFinal,
     categoria: categoria.value,
     conteudo: editorMateria.innerHTML.trim(),
     autor: perfil.user,
+    data: dataEscolhida,
     atualizadoEm: new Date()
   };
 
@@ -1173,9 +1192,6 @@ window.salvar = async () => {
   } else {
     await addDoc(collection(db, "posts"), {
       ...dados,
-      data: dataPublicacao.value
-          ? new Date(dataPublicacao.value + "T12:00:00")
-          : new Date(),
       curtidas: 0
     });
     alert("Matéria publicada!");
