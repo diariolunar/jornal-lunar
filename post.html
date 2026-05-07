@@ -467,7 +467,7 @@ async function carregarPost() {
   if (postSnap.exists()) {
     const post = postSnap.data();
 
-    if (post.status !== "publicado") {
+    if (post.status && post.status !== "publicado") {
       mostrarMateriaNaoEncontrada();
       return;
     }
@@ -545,7 +545,7 @@ async function curtir() {
 
   const post = postSnap.data();
 
-  if (post.status !== "publicado") {
+  if (post.status && post.status !== "publicado") {
     alert("Essa matéria não está disponível para interação.");
     return;
   }
@@ -588,7 +588,7 @@ async function comentar() {
   const postRef = doc(db, "posts", id);
   const postSnap = await getDoc(postRef);
 
-  if (!postSnap.exists() || postSnap.data().status !== "publicado") {
+  if (!postSnap.exists() || (postSnap.data().status && postSnap.data().status !== "publicado")) {
     alert("Essa matéria não está disponível para comentários.");
     return;
   }
