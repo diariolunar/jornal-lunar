@@ -450,6 +450,40 @@ input, textarea, select {
   display: none;
 }
 
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.check-item input {
+  width: auto;
+  margin: 0;
+}
+
+.badge-reporter {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-interno {
+  background: #f3f4f6;
+  color: #374151;
+}
+
 @media (max-width: 1000px) {
   .metricas {
     grid-template-columns: repeat(2, 1fr);
@@ -614,6 +648,10 @@ input, textarea, select {
     width: 95vw;
     padding: 16px;
   }
+
+  .check-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </head>
@@ -660,8 +698,8 @@ input, textarea, select {
     </div>
 
     <button class="menu-btn active" onclick="dashboard(); fecharMenu()">Painel</button>
-    <button class="menu-btn" onclick="novaMateria(); fecharMenu()">Nova Matéria</button>
-    <button class="menu-btn" onclick="listar(); fecharMenu()">Matérias Publicadas</button>
+    <button class="menu-btn" id="btnNovaMateria" onclick="novaMateria(); fecharMenu()">Nova Matéria</button>
+    <button class="menu-btn" id="btnMateriasPublicadas" onclick="listar(); fecharMenu()">Matérias Publicadas</button>
     <button class="menu-btn" onclick="editarPerfil(); fecharMenu()">Editar Perfil</button>
     <button class="menu-btn" id="btnCadastrar" onclick="cadastrarADM(); fecharMenu()" style="display:none;">Cadastrar ADM</button>
     <button class="menu-btn" id="btnGerenciar" onclick="gerenciarADMs(); fecharMenu()" style="display:none;">Gerenciar ADMs</button>
@@ -791,6 +829,7 @@ onAuthStateChanged(auth, async (u) => {
   document.getElementById("layout").style.display = "flex";
 
   atualizarSidebar();
+  aplicarPermissoesPainel();
 
   if (perfil.role === "superadmin") {
     document.getElementById("btnCadastrar").style.display = "block";
@@ -808,6 +847,38 @@ function atualizarSidebar() {
   document.getElementById("user").innerText = "@" + (perfil.user || "admin");
   document.getElementById("nomenclatura").innerText = perfil.nomenclatura || "Administrador";
   document.getElementById("fotoPerfilSidebar").src = perfil.fotoUrl || "logo-vertical.png";
+}
+
+
+function temPermissao(nome) {
+  if (!perfil) return false;
+  if (perfil.role === "superadmin") return true;
+  if (!perfil.permissoes) return false;
+  return perfil.permissoes[nome] === true;
+}
+
+function aplicarPermissoesPainel() {
+  const btnNovaMateria = document.getElementById("btnNovaMateria");
+  const btnMateriasPublicadas = document.getElementById("btnMateriasPublicadas");
+
+  if (btnNovaMateria) {
+    btnNovaMateria.style.display = temPermissao("publicar") ? "block" : "none";
+  }
+
+  if (btnMateriasPublicadas) {
+    btnMateriasPublicadas.style.display =
+      temPermissao("publicar") || temPermissao("editar") || temPermissao("excluir")
+        ? "block"
+        : "none";
+  }
+}
+
+function podeGerenciarAdmins() {
+  return perfil && perfil.role === "superadmin";
+}
+
+function checkboxMarcado(valor) {
+  return valor ? "checked" : "";
 }
 
 function marcarAtivo(texto) {
@@ -1118,6 +1189,16 @@ window.inserirLink = function () {
 };
 
 window.novaMateria = (p = null, id = null) => {
+  if (p && id && !temPermissao("editar")) {
+    alert("Você não tem permissão para editar matérias.");
+    return;
+  }
+
+  if (!p && !temPermissao("publicar")) {
+    alert("Você não tem permissão para publicar matérias.");
+    return;
+  }
+
   marcarAtivo("Nova Matéria");
 
   editId = id;
@@ -1196,6 +1277,16 @@ window.novaMateria = (p = null, id = null) => {
 };
 
 window.salvar = async () => {
+  if (editId && !temPermissao("editar")) {
+    alert("Você não tem permissão para editar matérias.");
+    return;
+  }
+
+  if (!editId && !temPermissao("publicar")) {
+    alert("Você não tem permissão para publicar matérias.");
+    return;
+  }
+
   let imagemFinal = imagemAtual;
 
   if (imagemMateriaBlob) {
@@ -1270,8 +1361,8 @@ window.listar = async () => {
         <span class="badge">${p.categoria || "Matéria"}</span>
         <span>${formatarData(p.data)}</span>
         <div class="acoes">
-          <button class="btn" onclick="editar('${p.id}')">Editar</button>
-          <button class="btn btn-red" onclick="excluir('${p.id}')">Excluir</button>
+          ${temPermissao("editar") ? `<button class="btn" onclick="editar('${p.id}')">Editar</button>` : ""}
+          ${temPermissao("excluir") ? `<button class="btn btn-red" onclick="excluir('${p.id}')">Excluir</button>` : ""}
         </div>
       </div>
     `;
@@ -1283,7 +1374,7 @@ window.listar = async () => {
         <h1>Matérias Publicadas</h1>
         <p>Gerencie, edite ou exclua as matérias do Diário Lunar.</p>
       </div>
-      <button class="btn" onclick="novaMateria()">Nova Matéria</button>
+      ${temPermissao("publicar") ? `<button class="btn" onclick="novaMateria()">Nova Matéria</button>` : ""}
     </div>
 
     <div class="card">
@@ -1293,6 +1384,11 @@ window.listar = async () => {
 };
 
 window.editar = async (id) => {
+  if (!temPermissao("editar")) {
+    alert("Você não tem permissão para editar matérias.");
+    return;
+  }
+
   const snap = await getDoc(doc(db, "posts", id));
 
   if (!snap.exists()) {
@@ -1304,6 +1400,11 @@ window.editar = async (id) => {
 };
 
 window.excluir = async (id) => {
+  if (!temPermissao("excluir")) {
+    alert("Você não tem permissão para excluir matérias.");
+    return;
+  }
+
   if (!confirm("Deseja excluir esta matéria?")) return;
 
   await deleteDoc(doc(db, "posts", id));
@@ -1422,11 +1523,26 @@ window.cadastrarADM = () => {
           <label>User</label>
           <input id="userADM" placeholder="User do ADM">
 
-          <label>Nomenclatura no jornal</label>
-          <input id="nomenADM" placeholder="Ex: Editor, Colunista, Administrador">
+          <label>Cargo</label>
+          <input id="cargoADM" placeholder="Ex: Repórter, Editor, Revisor, Designer">
+
+          <label>Nomenclatura</label>
+          <input id="nomenADM" placeholder="Ex: Phynx, Kymae, A Voz Lunar">
 
           <label>Senha de acesso</label>
           <input id="senhaADM" type="password" placeholder="Senha inicial do ADM">
+
+          <label>Tipo de usuário</label>
+          <div class="check-grid">
+            <label class="check-item"><input id="reporterADM" type="checkbox" checked> É repórter</label>
+          </div>
+
+          <label>Permissões</label>
+          <div class="check-grid">
+            <label class="check-item"><input id="permPublicarADM" type="checkbox" checked> Publicar matéria</label>
+            <label class="check-item"><input id="permEditarADM" type="checkbox" checked> Editar matéria</label>
+            <label class="check-item"><input id="permExcluirADM" type="checkbox"> Excluir matéria</label>
+          </div>
 
           <button class="btn" onclick="salvarADM()">Cadastrar ADM</button>
         </div>
@@ -1451,11 +1567,19 @@ window.salvarADM = async () => {
   const nome = nomeADM.value.trim();
   const email = emailADM.value.trim();
   const user = userADM.value.trim();
+  const cargo = cargoADM.value.trim();
   const nomenclatura = nomenADM.value.trim();
   const senha = senhaADM.value.trim();
+  const reporter = reporterADM.checked;
+  const permissoes = {
+    publicar: permPublicarADM.checked,
+    editar: permEditarADM.checked,
+    excluir: permExcluirADM.checked,
+    gerenciarAdmins: false
+  };
 
-  if (!nome || !email || !user || !nomenclatura || !senha) {
-    alert("Preencha Nome, Email, User, Nomenclatura e Senha.");
+  if (!nome || !email || !user || !cargo || !nomenclatura || !senha) {
+    alert("Preencha Nome, Email, User, Cargo, Nomenclatura e Senha.");
     return;
   }
 
@@ -1473,7 +1597,10 @@ window.salvarADM = async () => {
       nome: nome,
       email: email,
       user: user,
+      cargo: cargo,
       nomenclatura: nomenclatura,
+      reporter: reporter,
+      permissoes: permissoes,
       fotoUrl: fotoUrl,
       role: "admin",
       ativo: true,
@@ -1517,9 +1644,10 @@ window.gerenciarADMs = async () => {
         <div>
           <strong>${adm.nome || "Sem nome"}</strong>
           <p style="margin:6px 0 0; color:#64748b;">@${adm.user || "admin"} · ${adm.email || ""}</p>
+          <p style="margin:6px 0 0; color:#64748b;">${adm.cargo || "Sem cargo"} · ${adm.nomenclatura || "Sem nomenclatura"}</p>
         </div>
 
-        <span class="badge">${adm.role || "admin"}</span>
+        <span class="badge ${adm.reporter ? "badge-reporter" : "badge-interno"}">${adm.reporter ? "Repórter" : "Interno"}</span>
 
         <span class="badge ${ativo ? "badge-ok" : "badge-off"}">
           ${ativo ? "Ativo" : "Desativado"}
@@ -1597,6 +1725,9 @@ window.editarADM = async (admId) => {
           <label>User</label>
           <input id="userEditarADM" value="${adm.user || ""}">
 
+          <label>Cargo</label>
+          <input id="cargoEditarADM" value="${adm.cargo || ""}">
+
           <label>Nomenclatura</label>
           <input id="nomenEditarADM" value="${adm.nomenclatura || ""}">
 
@@ -1605,6 +1736,18 @@ window.editarADM = async (admId) => {
             <option value="admin" ${adm.role === "admin" ? "selected" : ""}>Admin</option>
             <option value="superadmin" ${adm.role === "superadmin" ? "selected" : ""}>Superadmin</option>
           </select>
+
+          <label>Tipo de usuário</label>
+          <div class="check-grid">
+            <label class="check-item"><input id="reporterEditarADM" type="checkbox" ${checkboxMarcado(adm.reporter === true)}> É repórter</label>
+          </div>
+
+          <label>Permissões</label>
+          <div class="check-grid">
+            <label class="check-item"><input id="permPublicarEditarADM" type="checkbox" ${checkboxMarcado(adm.role === "superadmin" || adm.permissoes?.publicar === true)}> Publicar matéria</label>
+            <label class="check-item"><input id="permEditarEditarADM" type="checkbox" ${checkboxMarcado(adm.role === "superadmin" || adm.permissoes?.editar === true)}> Editar matéria</label>
+            <label class="check-item"><input id="permExcluirEditarADM" type="checkbox" ${checkboxMarcado(adm.role === "superadmin" || adm.permissoes?.excluir === true)}> Excluir matéria</label>
+          </div>
 
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <button class="btn" onclick="salvarEdicaoADM()">Salvar alterações</button>
@@ -1641,8 +1784,16 @@ window.salvarEdicaoADM = async () => {
   await updateDoc(doc(db, "admins", editAdmId), {
     nome: nomeEditarADM.value.trim(),
     user: userEditarADM.value.trim(),
+    cargo: cargoEditarADM.value.trim(),
     nomenclatura: nomenEditarADM.value.trim(),
     role: roleEditarADM.value,
+    reporter: reporterEditarADM.checked,
+    permissoes: {
+      publicar: roleEditarADM.value === "superadmin" || permPublicarEditarADM.checked,
+      editar: roleEditarADM.value === "superadmin" || permEditarEditarADM.checked,
+      excluir: roleEditarADM.value === "superadmin" || permExcluirEditarADM.checked,
+      gerenciarAdmins: roleEditarADM.value === "superadmin"
+    },
     fotoUrl: fotoUrl,
     atualizadoEm: new Date()
   });
