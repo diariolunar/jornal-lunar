@@ -23,8 +23,11 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
 .card { background:white; border-radius:22px; padding:28px; box-shadow:0 8px 25px rgba(0,0,0,.07); text-align:center; }
 .card img { width:120px; height:120px; border-radius:50%; object-fit:cover; background:#ede9fe; }
 .card h3 { margin-bottom:6px; }
-.card .user { color:#6D28D9; font-weight:bold; }
+.card .user { color:#6D28D9; font-weight:bold; margin:6px 0; }
+.card .nomenclatura-card { color:#07101F; font-weight:bold; margin:8px 0 0; }
 .card .cargo { display:inline-block; margin-top:12px; background:linear-gradient(90deg,#0EA5E9,#6D28D9); color:white; padding:8px 14px; border-radius:999px; font-size:13px; }
+
+.vazio { background:white; padding:30px; border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,.07); }
 
 .footer { background:url("footer.png") center/cover no-repeat; color:white; padding:45px 50px; margin-top:60px; display:grid; grid-template-columns:1.4fr 1.2fr 1fr; gap:35px; position:relative; }
 .footer::before { content:""; position:absolute; inset:0; background:rgba(7,16,31,.82); }
@@ -60,7 +63,7 @@ body { margin:0; font-family:Arial,sans-serif; background:#F8F6F1; color:#07101F
 <section class="header">
   <p>✦ Equipe Lunar</p>
   <h1>Equipe do Diário Lunar</h1>
-  <p>Conheça os administradores e colaboradores responsáveis pelas publicações.</p>
+  <p>Conheça os repórteres e colaboradores responsáveis pelas publicações do jornal.</p>
 </section>
 
 <section class="section">
@@ -109,24 +112,44 @@ async function carregarEquipe() {
 
   container.innerHTML = "";
 
+  let membros = [];
+
   snap.forEach(doc => {
     const adm = doc.data();
 
+    if (adm.reporter === true && adm.ativo !== false) {
+      membros.push(adm);
+    }
+  });
+
+  membros.sort((a, b) => {
+    const nomeA = (a.nome || "").toLowerCase();
+    const nomeB = (b.nome || "").toLowerCase();
+    return nomeA.localeCompare(nomeB);
+  });
+
+  membros.forEach(adm => {
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <img src="${adm.fotoUrl || "logo-vertical.png"}">
-      <h3>${adm.nome || "Administrador"}</h3>
-      <p class="user">@${adm.user || "admin"}</p>
-      <span class="cargo">${adm.nomenclatura || "Equipe Diário Lunar"}</span>
+      <h3>${adm.nome || "Membro da equipe"}</h3>
+      <p class="user">@${adm.user || "diario_lunar"}</p>
+      <p class="nomenclatura-card">${adm.nomenclatura || ""}</p>
+      <span class="cargo">${adm.cargo || "Repórter"}</span>
     `;
 
     container.appendChild(div);
   });
 
-  if (container.innerHTML === "") {
-    container.innerHTML = "<p>Nenhum membro cadastrado ainda.</p>";
+  if (membros.length === 0) {
+    container.innerHTML = `
+      <div class="vazio">
+        <h2>Nenhum repórter cadastrado ainda</h2>
+        <p>Quando um ADM for marcado como repórter no painel, ele aparecerá aqui.</p>
+      </div>
+    `;
   }
 }
 
