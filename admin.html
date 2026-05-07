@@ -300,6 +300,16 @@ body {
   color: #991b1b;
 }
 
+.badge-publicado {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-rascunho {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .btn {
   background: linear-gradient(90deg, #0EA5E9, #6D28D9);
   color: white;
@@ -774,6 +784,7 @@ const storage = getStorage(app);
 let uid = null;
 let perfil = null;
 let editId = null;
+let statusAtual = "publicado";
 let imagemAtual = "";
 
 let imagemMateriaBlob = null;
@@ -1081,27 +1092,35 @@ window.dashboard = async () => {
   let listaPosts = [];
   let totalCurtidas = 0;
   let totalMes = 0;
+  let totalPublicadas = 0;
+  let totalRascunhos = 0;
 
   const mesAtual = new Date().getMonth();
   const anoAtual = new Date().getFullYear();
 
   postsSnap.forEach((d) => {
     const p = d.data();
+    const status = p.status || "publicado";
 
-    totalCurtidas += p.curtidas || 0;
+    if (status === "rascunho") {
+      totalRascunhos++;
+    } else {
+      totalPublicadas++;
+      totalCurtidas += p.curtidas || 0;
 
-    const dataNum = getDataNumber(p);
-    const dataPost = dataNum ? new Date(dataNum) : null;
+      const dataNum = getDataNumber(p);
+      const dataPost = dataNum ? new Date(dataNum) : null;
 
-    if (dataPost && dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual) {
-      totalMes++;
+      if (dataPost && dataPost.getMonth() === mesAtual && dataPost.getFullYear() === anoAtual) {
+        totalMes++;
+      }
+
+      listaPosts.push({
+        id: d.id,
+        ...p,
+        dataNum
+      });
     }
-
-    listaPosts.push({
-      id: d.id,
-      ...p,
-      dataNum
-    });
   });
 
   listaPosts.sort((a, b) => b.dataNum - a.dataNum);
@@ -1111,12 +1130,12 @@ window.dashboard = async () => {
   listaPosts.slice(0, 3).forEach((p) => {
     ultimas += `
       <div class="materia-linha" style="grid-template-columns:90px 1fr 120px;">
-        <img src="${p.imagem || ""}">
+        <img src="${p.imagem || "logo-vertical.png"}">
         <div>
           <strong>${p.titulo || ""}</strong>
           <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
         </div>
-        <span class="badge">Publicado</span>
+        <span class="badge badge-publicado">Publicado</span>
       </div>
     `;
   });
@@ -1133,8 +1152,14 @@ window.dashboard = async () => {
     <div class="metricas">
       <div class="metrica">
         <div class="icone">📰</div>
-        <h2>${listaPosts.length}</h2>
+        <h2>${totalPublicadas}</h2>
         <p>Matérias publicadas</p>
+      </div>
+
+      <div class="metrica">
+        <div class="icone">📝</div>
+        <h2>${totalRascunhos}</h2>
+        <p>Rascunhos salvos</p>
       </div>
 
       <div class="metrica">
@@ -1147,12 +1172,6 @@ window.dashboard = async () => {
         <div class="icone">💬</div>
         <h2>${comentariosSnap.size}</h2>
         <p>Comentários</p>
-      </div>
-
-      <div class="metrica">
-        <div class="icone">📅</div>
-        <h2>${totalMes}</h2>
-        <p>Matérias este mês</p>
       </div>
     </div>
 
@@ -1202,6 +1221,7 @@ window.novaMateria = (p = null, id = null) => {
   marcarAtivo("Nova Matéria");
 
   editId = id;
+  statusAtual = p?.status || "publicado";
   imagemAtual = p?.imagem || "";
   imagemMateriaBlob = null;
 
@@ -1234,6 +1254,8 @@ window.novaMateria = (p = null, id = null) => {
           <label>Data da publicação</label>
           <input id="dataPublicacao" type="date" value="${valorDataInput(p?.data)}">
 
+          ${p ? `<p style="color:#64748b; font-size:14px; margin-top:0;">Status atual: <strong>${statusAtual === "rascunho" ? "Rascunho" : "Publicado"}</strong></p>` : ""}
+
           <label>Imagem da matéria</label>
           <img id="previewImagem" class="preview-img" src="${p?.imagem || ""}" style="${p?.imagem ? "display:block;" : ""}">
           <input id="arquivoImagem" type="file" accept="image/*">
@@ -1261,8 +1283,11 @@ window.novaMateria = (p = null, id = null) => {
         </div>
       </div>
 
-      <div style="margin-top:20px; display:flex; gap:10px;">
-        <button class="btn" onclick="salvar()">${p ? "Salvar alterações" : "Publicar"}</button>
+      <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        ${p ? `<button class="btn" onclick="salvar()">Salvar alterações</button>` : `<button class="btn" onclick="salvar('publicado')">Publicar Matéria</button>`}
+        ${p && statusAtual === "rascunho" ? `<button class="btn" onclick="salvar('publicado')">Publicar agora</button>` : ""}
+        ${p && statusAtual !== "rascunho" ? `<button class="btn btn-dark" onclick="salvar('rascunho')">Mover para rascunho</button>` : ""}
+        ${!p ? `<button class="btn btn-dark" onclick="salvar('rascunho')">Salvar rascunho</button>` : ""}
         ${p ? `<button class="btn btn-dark" onclick="listar()">Cancelar edição</button>` : ""}
       </div>
     </div>
@@ -1276,7 +1301,7 @@ window.novaMateria = (p = null, id = null) => {
   });
 };
 
-window.salvar = async () => {
+window.salvar = async (statusDesejado = null) => {
   if (editId && !temPermissao("editar")) {
     alert("Você não tem permissão para editar matérias.");
     return;
@@ -1293,6 +1318,8 @@ window.salvar = async () => {
     imagemFinal = await uploadBlob(imagemMateriaBlob, "materias", "materia");
   }
 
+  const statusFinal = statusDesejado || statusAtual || "publicado";
+
   const dataEscolhida = dataPublicacao.value
     ? new Date(dataPublicacao.value + "T12:00:00")
     : new Date();
@@ -1304,26 +1331,33 @@ window.salvar = async () => {
     conteudo: editorMateria.innerHTML.trim(),
     autor: perfil.user,
     data: dataEscolhida,
+    status: statusFinal,
     atualizadoEm: new Date()
   };
 
-  if (!dados.titulo || !dados.imagem || !dados.categoria || !dados.conteudo) {
-    alert("Preencha título, imagem, categoria e conteúdo.");
+  if (!dados.titulo) {
+    alert("Preencha pelo menos o título para salvar.");
+    return;
+  }
+
+  if (statusFinal === "publicado" && (!dados.imagem || !dados.categoria || !dados.conteudo)) {
+    alert("Para publicar, preencha imagem, categoria e conteúdo.");
     return;
   }
 
   if (editId) {
     await updateDoc(doc(db, "posts", editId), dados);
-    alert("Matéria atualizada!");
+    alert(statusFinal === "rascunho" ? "Rascunho atualizado!" : "Matéria atualizada!");
   } else {
     await addDoc(collection(db, "posts"), {
       ...dados,
       curtidas: 0
     });
-    alert("Matéria publicada!");
+    alert(statusFinal === "rascunho" ? "Rascunho salvo!" : "Matéria publicada!");
   }
 
   editId = null;
+  statusAtual = "publicado";
   imagemAtual = "";
   imagemMateriaBlob = null;
   listar();
@@ -1353,12 +1387,17 @@ window.listar = async () => {
   listaPosts.forEach(p => {
     linhas += `
       <div class="materia-linha">
-        <img src="${p.imagem || ""}">
+        <img src="${p.imagem || "logo-vertical.png"}">
         <div>
           <strong>${p.titulo || ""}</strong>
           <p style="margin:6px 0 0; color:#64748b;">Publicado em ${formatarData(p.data)}</p>
         </div>
-        <span class="badge">${p.categoria || "Matéria"}</span>
+        <span>
+          <span class="badge">${p.categoria || "Sem categoria"}</span>
+          <span class="badge ${(p.status || "publicado") === "rascunho" ? "badge-rascunho" : "badge-publicado"}" style="margin-top:6px; display:inline-block;">
+            ${(p.status || "publicado") === "rascunho" ? "Rascunho" : "Publicado"}
+          </span>
+        </span>
         <span>${formatarData(p.data)}</span>
         <div class="acoes">
           ${temPermissao("editar") ? `<button class="btn" onclick="editar('${p.id}')">Editar</button>` : ""}
