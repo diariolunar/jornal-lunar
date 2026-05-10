@@ -395,13 +395,50 @@ input, textarea, select {
   padding-left: 28px;
 }
 
-.editor img {
-  width: 100%;
+.editor img,
+.imagem-interna-materia {
+  width: auto;
   max-width: 100%;
+  max-height: 520px;
   border-radius: 16px;
   margin: 22px auto;
   display: block;
   box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  object-fit: contain;
+}
+
+.upload-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  margin: 20px auto;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  color: #475569;
+  font-weight: bold;
+  width: fit-content;
+}
+
+.loader {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #ddd;
+  border-top: 3px solid #6D28D9;
+  border-radius: 50%;
+  animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .preview-img {
@@ -1234,7 +1271,22 @@ window.inserirImagemNaMateria = function () {
 
     if (!arquivo) return;
 
+    const loadingId = "loading-" + Date.now();
+
     try {
+      editor.focus();
+
+      document.execCommand(
+        "insertHTML",
+        false,
+        `
+        <div id="${loadingId}" class="upload-loading">
+          <div class="loader"></div>
+          <span>Enviando imagem...</span>
+        </div>
+        `
+      );
+
       const caminho = `imagens-materia/${Date.now()}-${arquivo.name}`;
       const arquivoRef = ref(storage, caminho);
 
@@ -1243,16 +1295,27 @@ window.inserirImagemNaMateria = function () {
       });
 
       const url = await getDownloadURL(arquivoRef);
+      const loadingElement = document.getElementById(loadingId);
 
-      editor.focus();
-
-      document.execCommand(
-        "insertHTML",
-        false,
-        `<img src="${url}" class="imagem-interna-materia"><br>`
-      );
+      if (loadingElement) {
+        loadingElement.outerHTML = `<img src="${url}" class="imagem-interna-materia"><br>`;
+      } else {
+        editor.focus();
+        document.execCommand(
+          "insertHTML",
+          false,
+          `<img src="${url}" class="imagem-interna-materia"><br>`
+        );
+      }
     } catch (error) {
       console.error(error);
+
+      const loadingElement = document.getElementById(loadingId);
+
+      if (loadingElement) {
+        loadingElement.outerHTML = `<p style="color:#ef4444; font-weight:bold;">Erro ao enviar imagem. Tente novamente.</p>`;
+      }
+
       alert("Erro ao inserir imagem na matéria.");
     }
   };
