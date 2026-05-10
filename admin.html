@@ -395,6 +395,15 @@ input, textarea, select {
   padding-left: 28px;
 }
 
+.editor img {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px;
+  margin: 22px auto;
+  display: block;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
 .preview-img {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -1207,6 +1216,50 @@ window.inserirLink = function () {
   document.execCommand("createLink", false, url);
 };
 
+
+window.inserirImagemNaMateria = function () {
+  const editor = document.getElementById("editorMateria");
+
+  if (!editor) {
+    alert("Abra o editor da matéria antes de inserir uma imagem.");
+    return;
+  }
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+
+  input.onchange = async () => {
+    const arquivo = input.files[0];
+
+    if (!arquivo) return;
+
+    try {
+      const caminho = `imagens-materia/${Date.now()}-${arquivo.name}`;
+      const arquivoRef = ref(storage, caminho);
+
+      await uploadBytes(arquivoRef, arquivo, {
+        contentType: arquivo.type || "image/jpeg"
+      });
+
+      const url = await getDownloadURL(arquivoRef);
+
+      editor.focus();
+
+      document.execCommand(
+        "insertHTML",
+        false,
+        `<img src="${url}" class="imagem-interna-materia"><br>`
+      );
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao inserir imagem na matéria.");
+    }
+  };
+
+  input.click();
+};
+
 window.novaMateria = (p = null, id = null) => {
   if (p && id && !temPermissao("editar")) {
     alert("Você não tem permissão para editar matérias.");
@@ -1275,6 +1328,7 @@ window.novaMateria = (p = null, id = null) => {
             <button type="button" onclick="formatarTexto('justifyRight')">➡</button>
             <button type="button" onclick="formatarTexto('justifyFull')">☰</button>
             <button type="button" onclick="inserirLink()">🔗 Link</button>
+            <button type="button" onclick="inserirImagemNaMateria()">🖼️ Imagem</button>
             <button type="button" onclick="formatarTexto('insertUnorderedList')">• Lista</button>
             <button type="button" onclick="formatarTexto('insertOrderedList')">1. Lista</button>
           </div>
