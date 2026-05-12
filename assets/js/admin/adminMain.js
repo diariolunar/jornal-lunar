@@ -1,76 +1,88 @@
-import { renderSidebar } from "./sidebar.js";
+import { renderSidebar }
+from "./sidebar.js";
 
-const usuarioFake = {
-  nome: "Super Admin",
-  cargo: "Administrador Geral",
-  fotoUrl: "/assets/images/logo-vertical.png",
-  superadmin: true
-};
+import { fazerLogin, fazerLogout }
+from "./auth/login.js";
 
-document.getElementById("adminApp").innerHTML = `
-  <div class="admin-layout">
+import {
+  pegarSessao,
+  limparSessao
+}
+from "./auth/session.js";
 
-    ${renderSidebar(usuarioFake)}
+const app = document.getElementById("adminApp");
 
-    <main class="admin-content">
+function renderLogin() {
+  app.innerHTML = `
+    <section class="admin-login">
+      <div class="admin-login-card">
+        <img src="/assets/images/logo-vertical.png">
 
-      <div id="adminPage"></div>
+        <h1>Entrar na Área ADM</h1>
 
-    </main>
+        <p>Digite suas credenciais para acessar.</p>
 
-  </div>
-`;
+        <label>E-mail</label>
+        <input id="loginEmail" type="email" placeholder="Digite seu e-mail">
 
-const adminPage =
-  document.getElementById("adminPage");
+        <label>Senha</label>
+        <input id="loginSenha" type="password" placeholder="Digite sua senha">
 
-function carregarDashboard() {
+        <button id="loginBtn" class="btn btn-gradient">
+          Entrar
+        </button>
 
-  adminPage.innerHTML = `
-    <div class="admin-card">
-
-      <h1>
-        Bem-vindo ao painel ADM
-      </h1>
-
-      <p>
-        O novo sistema modular do Diário Lunar
-        está funcionando corretamente.
-      </p>
-
-    </div>
+        <p id="loginErro" class="login-erro"></p>
+      </div>
+    </section>
   `;
+
+  document.getElementById("loginBtn").onclick = async () => {
+    const email = document.getElementById("loginEmail").value.trim();
+    const senha = document.getElementById("loginSenha").value.trim();
+
+    const resultado = await fazerLogin(email, senha);
+
+    if (!resultado.sucesso) {
+      document.getElementById("loginErro").innerText =
+        resultado.mensagem;
+
+      return;
+    }
+
+    renderPainel(resultado.usuario);
+  };
 }
 
-carregarDashboard();
+function renderPainel(usuario) {
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderSidebar(usuario)}
 
-document
-  .querySelectorAll("[data-page]")
-  .forEach((botao) => {
+      <main class="admin-content">
+        <div id="adminPage"></div>
+      </main>
+    </div>
+  `;
 
-    botao.onclick = () => {
+  document.getElementById("adminPage").innerHTML = `
+    <div class="admin-card">
+      <h1>Bem-vindo, ${usuario.nome || "ADM"}</h1>
+      <p>Painel administrativo do Diário Lunar.</p>
+    </div>
+  `;
 
-      const pagina =
-        botao.dataset.page;
-
-      adminPage.innerHTML = `
-        <div class="admin-card">
-
-          <h2>
-            ${pagina}
-          </h2>
-
-          <p>
-            Essa área será modularizada separadamente.
-          </p>
-
-        </div>
-      `;
-    };
-  });
-
-document.getElementById("logoutBtn").onclick =
-  () => {
-
-    alert("Logout futuramente.");
+  document.getElementById("logoutBtn").onclick = async () => {
+    await fazerLogout();
+    limparSessao();
+    renderLogin();
   };
+}
+
+const sessao = pegarSessao();
+
+if (sessao) {
+  renderPainel(sessao);
+} else {
+  renderLogin();
+}
