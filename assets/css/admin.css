@@ -155,3 +155,23 @@
   font-weight: bold;
   margin-top: 15px;
 }
+
+.admin-voltar {
+  color: white;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 11px;
+  border-radius: 14px;
+  text-align: center;
+  margin-bottom: 25px;
+  display: block;
+}
+
+.admin-user span {
+  display: inline-block;
+  margin-top: 8px;
+  background: linear-gradient(90deg, var(--azul), var(--roxo));
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+}
