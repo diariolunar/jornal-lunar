@@ -1,56 +1,73 @@
-import { db }
+import { auth, db }
 from "../../config/firebase.js";
 
 import {
-  collection,
-  getDocs
+  signInWithEmailAndPassword,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+import {
+  doc,
+  getDoc
 }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import {
-  salvarSessao
+  salvarSessao,
+  limparSessao
 }
 from "./session.js";
 
-export async function fazerLogin(
-  email,
-  senha
-) {
+export async function fazerLogin(email, senha) {
+  try {
+    const credencial =
+      await signInWithEmailAndPassword(auth, email, senha);
 
-  const snapshot =
-    await getDocs(collection(db, "admins"));
+    const uid = credencial.user.uid;
 
-  let usuarioEncontrado = null;
+    const admSnap =
+      await getDoc(doc(db, "admins", uid));
 
-  snapshot.forEach((item) => {
+    if (!admSnap.exists()) {
+      await signOut(auth);
 
-    const adm = item.data();
-
-    if (
-      adm.email === email
-      &&
-      adm.senha === senha
-    ) {
-
-      usuarioEncontrado = {
-        id: item.id,
-        ...adm
+      return {
+        sucesso: false,
+        mensagem: "Usuário sem permissão administrativa."
       };
     }
-  });
 
-  if (!usuarioEncontrado) {
+    const adm = {
+      id: uid,
+      ...admSnap.data()
+    };
 
+    if (adm.ativo === false) {
+      await signOut(auth);
+
+      return {
+        sucesso: false,
+        mensagem: "Este acesso está desativado."
+      };
+    }
+
+    salvarSessao(adm);
+
+    return {
+      sucesso: true,
+      usuario: adm
+    };
+
+  } catch {
     return {
       sucesso: false,
       mensagem: "E-mail ou senha inválidos."
     };
   }
+}
 
-  salvarSessao(usuarioEncontrado);
-
-  return {
-    sucesso: true,
-    usuario: usuarioEncontrado
-  };
+export async function fazerLogout() {
+  limparSessao();
+  await signOut(auth);
 }
