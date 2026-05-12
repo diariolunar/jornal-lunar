@@ -1,34 +1,317 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todas as Matérias - Diário Lunar</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todas as Matérias - Diário Lunar</title>
 
-  <link rel="icon" href="/assets/images/favicon.png">
-  <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 
-  <link rel="stylesheet" href="/assets/css/base.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/public.css">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #F8F6F1;
+  color: #07101F;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 50px;
+}
+
+.logo img {
+  height: 70px;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.menu a {
+  margin: 6px 10px;
+  text-decoration: none;
+  color: #07101F;
+  font-weight: 500;
+}
+
+.btn {
+  background: #6D28D9;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.header {
+  padding: 60px 50px 25px;
+}
+
+.header p {
+  color: #0EA5E9;
+  font-weight: bold;
+}
+
+.header h1 {
+  font-size: 48px;
+  margin: 10px 0;
+}
+
+.section {
+  padding: 20px 50px 70px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,.07);
+  cursor: pointer;
+  transition: .2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  display: block;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-content small {
+  color: #6D28D9;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.card-content h3 {
+  font-size: 22px;
+  margin: 12px 0;
+}
+
+.card-content p {
+  color: #333;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.footer {
+  background: url("footer.png") center/cover no-repeat;
+  color: white;
+  padding: 45px 50px;
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 1fr;
+  gap: 35px;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(7,16,31,0.82);
+}
+
+.footer > * {
+  position: relative;
+}
+
+.footer a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin: 8px 0;
+}
+
+.newsletter-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.newsletter-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+@media(max-width:850px) {
+  .navbar {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header,
+  .section {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div id="navbar"></div>
 
-  <main>
-    <section class="container section">
-      <p style="color: var(--azul); font-weight: bold;">✦ Arquivo Lunar</p>
-      <h1 style="font-size: 48px;">Todas as Matérias</h1>
-      <p>Confira todas as publicações do Diário Lunar.</p>
+<div class="navbar">
+  <div class="logo">
+    <img src="logo-diario-lunar.png">
+  </div>
 
-      <div class="grid grid-auto" id="posts" style="margin-top: 30px;"></div>
-    </section>
-  </main>
+  <div class="menu">
+    <a href="/">Início</a>
+    <a href="/materias.html">Todas as Matérias</a>
+    <a href="/categoria.html?tipo=Literatura">Literatura</a>
+    <a href="/categoria.html?tipo=Comunidade">Comunidade</a>
+    <a href="/categoria.html?tipo=Autores">Autores</a>
+    <a href="/categoria.html?tipo=Eventos">Eventos</a>
+    <a href="/categoria.html?tipo=Resenhas">Resenhas</a>
+    <a href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
+    <a href="/categoria.html?tipo=Destaques Lunar">Destaques Lunar</a>
+  </div>
 
-  <div id="footer"></div>
+  <a href="/admin.html" class="btn">Área ADM</a>
+</div>
 
-  <script type="module" src="/assets/js/pages/materias.js"></script>
+<section class="header">
+  <p>✦ Arquivo Lunar</p>
+  <h1>Todas as Matérias</h1>
+  <p>Confira todas as publicações do Diário Lunar.</p>
+</section>
+
+<section class="section">
+  <div class="grid" id="posts"></div>
+</section>
+
+<div class="footer">
+  <div>
+    <img src="logo-diario-lunar2.png" style="height:60px; margin-right:10px;">
+    <p>O Diário Lunar é um espaço dedicado à literatura, à comunidade e às histórias que merecem ser contadas.</p>
+    <a href="https://www.instagram.com/_projeto.lunar?igsh=YWd2enkzMjJmeGxv" target="_blank">Instagram</a>
+    <a href="https://projetolunar.com.br" target="_blank">Site Lunar</a>
+    <a href="mailto:diariolunar47@gmail.com">E-mail</a>
+  </div>
+
+  <div class="newsletter-box">
+    <h3>Receba novidades lunares</h3>
+    <p>Fique por dentro das matérias, destaques e novidades da comunidade.</p>
+    <input placeholder="Seu melhor e-mail">
+    <a href="#" class="btn">Inscrever-se</a>
+  </div>
+
+  <div>
+    <h3>Institucional</h3>
+    <a href="/sobre.html">Sobre o Diário Lunar</a>
+    <a href="/equipe.html">Equipe</a>
+    <a href="/privacidade.html">Política de Privacidade</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAHtrL1LEtpnKZ9QdGl2ehveCOZLWM94VE",
+  authDomain: "diario-lunar-dee91.firebaseapp.com",
+  projectId: "diario-lunar-dee91"
+});
+
+const db = getFirestore(app);
+
+function limparTexto(html) {
+  let texto = html || "";
+  texto = texto.replace(/<\/p>/gi,"\n").replace(/<div>/gi,"\n").replace(/<\/div>/gi,"\n").replace(/<br\s*\/?>/gi,"\n");
+  texto = texto.replace(/<[^>]*>/g,"");
+  const area = document.createElement("textarea");
+  area.innerHTML = texto;
+  return area.value.replace(/\n\s*\n/g,"\n").replace(/[ \t]+/g," ").trim();
+}
+
+function cortarTexto(texto, limite) {
+  return texto.length > limite ? texto.substring(0, limite).trim() + "..." : texto;
+}
+
+function getDataNumber(post) {
+  if (post.data?.toDate) return post.data.toDate().getTime();
+  if (post.data) return new Date(post.data).getTime();
+  return 0;
+}
+
+function estaPublicado(post) {
+  return post.status === "publicado" || !post.status;
+}
+
+async function carregar() {
+  const snap = await getDocs(collection(db, "posts"));
+  const container = document.getElementById("posts");
+
+  let posts = [];
+
+  snap.forEach(d => {
+    const dados = d.data();
+
+    if (!estaPublicado(dados)) return;
+
+    posts.push({
+      id: d.id,
+      ...dados,
+      dataNum: getDataNumber(dados)
+    });
+  });
+
+  posts.sort((a,b)=>b.dataNum-a.dataNum);
+
+  container.innerHTML = "";
+
+  posts.forEach(post => {
+    const texto = limparTexto(post.conteudo || "");
+    const div = document.createElement("div");
+    div.className = "card";
+    div.onclick = () => location.href = `/post.html?id=${post.id}`;
+    div.innerHTML = `
+      <img src="${post.imagem || ""}">
+      <div class="card-content">
+        <small>${post.categoria || "Matéria"}</small>
+        <h3>${post.titulo || ""}</h3>
+        <p>${cortarTexto(texto, 120)}</p>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  if (posts.length === 0) container.innerHTML = "<p>Nenhuma matéria publicada ainda.</p>";
+}
+
+carregar();
+</script>
+
 </body>
 </html>
